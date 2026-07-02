@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wayfair — Project Workspace (WS2 Prototype)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --wf-purple:#7F187F; --wf-purple-dark:#5F0F5F; --wf-purple-tint:#F6EDF6;
+  --wf-yellow:#FFDD00;
+  --ink:#2F2F2F; --ink-2:#585858; --ink-3:#8A8A8A;
+  --line:#E2E2E2; --bg:#F5F5F3; --card:#FFFFFF;
+  --green:#1F7A33; --green-tint:#E9F5EC;
+  --red:#B3261E; --red-tint:#FBEDEC;
+  --blue:#0F5CA8;
+  --r:12px;
+  font-size:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Figtree',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+img{display:block}
+
+/* ---------- Wayfair chrome ---------- */
+.topbar{background:#fff;border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:20px;padding:12px 20px}
+.wordmark{font-weight:800;font-style:italic;font-size:1.5rem;color:var(--wf-purple);letter-spacing:-0.5px;white-space:nowrap}
+.searchbox{flex:1;display:flex;align-items:center;background:#fff;border:2px solid var(--wf-purple);border-radius:999px;overflow:hidden;max-width:560px}
+.searchbox input{flex:1;border:none;outline:none;padding:9px 16px;font-size:.9rem;font-family:inherit;color:var(--ink)}
+.searchbox .go{background:var(--wf-purple);color:#fff;padding:9px 16px;font-weight:700;font-size:.85rem}
+.top-icons{display:flex;gap:18px;align-items:center;color:var(--ink-2);font-size:.78rem;font-weight:600}
+.top-icons .ic{display:flex;flex-direction:column;align-items:center;gap:2px}
+.cartpill{position:relative}
+.cartcount{position:absolute;top:-6px;right:-10px;background:var(--wf-purple);color:#fff;font-size:.65rem;font-weight:800;border-radius:999px;padding:1px 6px;min-width:18px;text-align:center}
+.subnav{background:var(--wf-purple);color:#fff}
+.subnav-in{max-width:1180px;margin:0 auto;display:flex;gap:26px;padding:9px 20px;font-size:.82rem;font-weight:600;overflow-x:auto}
+.subnav-in span{white-space:nowrap;opacity:.92}
+.subnav-in span.active{border-bottom:2px solid var(--wf-yellow);padding-bottom:2px;opacity:1}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+.crumb{font-size:.78rem;color:var(--ink-3);margin-bottom:14px}
+.crumb b{color:var(--ink-2);font-weight:600}
+
+/* ---------- project header ---------- */
+.projhead{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;display:flex;flex-wrap:wrap;gap:18px;align-items:center}
+.projmeta{flex:1;min-width:260px}
+.projtitle{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.projtitle h1{font-size:1.45rem;font-weight:800;letter-spacing:-.3px}
+.roombadge{background:var(--wf-purple-tint);color:var(--wf-purple);font-size:.7rem;font-weight:800;padding:4px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.4px}
+.projsub{font-size:.83rem;color:var(--ink-2);margin-top:5px}
+.members{display:flex;align-items:center}
+.av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;color:#fff;border:2.5px solid #fff;margin-left:-8px}
+.av:first-child{margin-left:0}
+.av.maya{background:#7F187F}.av.rohan{background:#0F5CA8}.av.priya{background:#B3540F}
+.av.add{background:#fff;border:2px dashed var(--wf-purple);color:var(--wf-purple);font-size:1.1rem;cursor:pointer}
+.memlabel{font-size:.72rem;color:var(--ink-3);margin-top:5px;text-align:right}
+.projactions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border-radius:999px;font-weight:700;font-size:.85rem;padding:10px 20px;transition:background .15s}
+.btn-primary{background:var(--wf-purple);color:#fff}
+.btn-primary:hover{background:var(--wf-purple-dark)}
+.btn-ghost{background:#fff;color:var(--wf-purple);border:2px solid var(--wf-purple)}
+.btn-ghost:hover{background:var(--wf-purple-tint)}
+
+/* roadmap toggle + chips */
+.roadmapbar{display:flex;justify-content:space-between;align-items:center;margin:16px 2px 10px;flex-wrap:wrap;gap:8px}
+.rtoggle{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--ink-2);font-weight:600}
+.switch{width:38px;height:21px;border-radius:999px;background:#CFCFCF;position:relative;transition:background .15s}
+.switch.on{background:var(--wf-purple)}
+.switch::after{content:"";position:absolute;width:17px;height:17px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left .15s}
+.switch.on::after{left:19px}
+.qchip{display:none;font-size:.62rem;font-weight:800;padding:2px 8px;border-radius:4px;letter-spacing:.4px;vertical-align:middle}
+body.showroadmap .qchip{display:inline-block}
+.qchip.q1{background:#E9F5EC;color:#1F7A33}
+.qchip.q2{background:#FFF6CC;color:#8A6D00}
+.qchip.qL{background:#EDEDED;color:#6B6B6B}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-top:6px;overflow-x:auto}
+.tab{padding:11px 18px;font-weight:700;font-size:.9rem;color:var(--ink-2);border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;display:flex;gap:7px;align-items:center}
+.tab.active{color:var(--wf-purple);border-color:var(--wf-purple)}
+.tab .count{background:var(--wf-purple-tint);color:var(--wf-purple);font-size:.68rem;font-weight:800;border-radius:999px;padding:1px 8px}
+.pane{display:none;padding-top:18px}
+.pane.active{display:block}
+
+/* ---------- idea board ---------- */
+.boardtools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.filter{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-size:.78rem;font-weight:600;color:var(--ink-2)}
+.filter.active{border-color:var(--wf-purple);background:var(--wf-purple-tint);color:var(--wf-purple)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s}
+.card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.art{height:160px;position:relative}
+.art svg{width:100%;height:100%;display:block}
+.srcbadge{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.94);border-radius:999px;font-size:.66rem;font-weight:800;padding:4px 10px;color:var(--ink-2);display:flex;gap:5px;align-items:center}
+.cbody{padding:12px 14px 10px;flex:1}
+.ctitle{font-weight:700;font-size:.92rem;line-height:1.3}
+.cnote{font-size:.76rem;color:var(--ink-2);margin-top:4px;line-height:1.45}
+.votes{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:.72rem;color:var(--ink-2)}
+.vdot{width:20px;height:20px;border-radius:50%;font-size:.6rem;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center}
+.vdot.m{background:#7F187F}.vdot.r{background:#0F5CA8}
+.vdot.pending{background:#fff;border:1.5px dashed #B9B9B9;color:#B9B9B9}
+.cacts{display:flex;border-top:1px solid var(--line)}
+.cact{flex:1;padding:10px 4px;font-size:.78rem;font-weight:700;color:var(--ink-2);display:flex;gap:6px;align-items:center;justify-content:center}
+.cact:hover{background:#FAFAFA}
+.cact.love.on{color:var(--wf-purple)}
+.cact.pass.on{color:var(--red)}
+.cact + .cact{border-left:1px solid var(--line)}
+.state-strip{font-size:.7rem;font-weight:700;padding:6px 14px;display:flex;gap:6px;align-items:center}
+.state-strip.agree{background:var(--green-tint);color:var(--green)}
+.state-strip.wait{background:#FFF9E0;color:#8A6D00}
+.state-strip.out{background:var(--red-tint);color:var(--red)}
+.addcard{border:2px dashed #C9B3C9;border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:280px;color:var(--wf-purple);font-weight:700;background:transparent}
+.addcard:hover{background:var(--wf-purple-tint)}
+.addcard .plus{width:44px;height:44px;border-radius:50%;background:var(--wf-purple);color:#fff;font-size:1.5rem;display:flex;align-items:center;justify-content:center}
+.sectionlabel{font-size:.78rem;font-weight:800;color:var(--ink-3);text-transform:uppercase;letter-spacing:.6px;margin:26px 2px 10px}
+.passedwrap .card{opacity:.62}
+
+/* ---------- shortlist ---------- */
+.slrow{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;grid-template-columns:210px 1fr;gap:18px;margin-bottom:16px}
+.slart{border-radius:8px;overflow:hidden;height:150px}
+.slart svg{width:100%;height:100%}
+.slhead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.sltitle{font-weight:800;font-size:1rem}
+.slmeta{font-size:.74rem;color:var(--ink-2);margin-top:3px}
+.matchlabel{font-size:.72rem;font-weight:800;color:var(--wf-purple);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 8px}
+.prodrow{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.prod{border:1px solid var(--line);border-radius:10px;min-width:168px;max-width:168px;background:#fff}
+.prodart{height:88px;border-radius:9px 9px 0 0;overflow:hidden}
+.prodart svg{width:100%;height:100%}
+.prodbody{padding:9px 10px 10px}
+.prodname{font-size:.75rem;font-weight:600;line-height:1.3;height:2.6em;overflow:hidden}
+.prodprice{font-weight:800;font-size:.9rem;margin-top:4px}
+.prodadd{margin-top:7px;width:100%;border:1.5px solid var(--wf-purple);color:var(--wf-purple);border-radius:999px;font-size:.72rem;font-weight:800;padding:6px 0}
+.prodadd.added{background:var(--green-tint);border-color:var(--green);color:var(--green)}
+.empty{border:1.5px dashed var(--line);border-radius:var(--r);padding:38px 20px;text-align:center;color:var(--ink-2);font-size:.88rem}
+.empty b{color:var(--ink)}
+
+/* ---------- discuss ---------- */
+.discuss{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
+.dlist{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.ditem{padding:13px 15px;border-bottom:1px solid var(--line);cursor:pointer}
+.ditem:last-child{border-bottom:none}
+.ditem.active{background:var(--wf-purple-tint);border-left:3px solid var(--wf-purple);padding-left:12px}
+.ditem .t{font-weight:700;font-size:.85rem}
+.ditem .s{font-size:.72rem;color:var(--ink-2);margin-top:2px}
+.thread{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.msg{display:flex;gap:10px;margin-bottom:14px}
+.msg .av{width:32px;height:32px;font-size:.72rem;border:none;margin:0;flex:none}
+.bubble{background:#F4F4F4;border-radius:4px 14px 14px 14px;padding:9px 13px;font-size:.85rem;line-height:1.45;max-width:520px}
+.msg.me{flex-direction:row-reverse}
+.msg.me .bubble{background:var(--wf-purple-tint);border-radius:14px 4px 14px 14px}
+.msgwho{font-size:.68rem;font-weight:800;color:var(--ink-3);margin-bottom:3px}
+.decisionchips{display:flex;gap:8px;margin:6px 0 16px;padding-left:42px;flex-wrap:wrap}
+.dchip{font-size:.74rem;font-weight:800;border-radius:999px;padding:7px 14px;border:1.5px solid var(--line);color:var(--ink-2);background:#fff}
+.dchip.yes{border-color:var(--green);color:var(--green)}
+.dchip.no{border-color:var(--red);color:var(--red)}
+.dchip.done{background:var(--green-tint);border-color:var(--green);color:var(--green)}
+.composer{display:flex;gap:9px;margin-top:6px}
+.composer input{flex:1;border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;font-family:inherit;font-size:.85rem;outline:none}
+.composer input:focus{border-color:var(--wf-purple)}
+
+/* ---------- budget & rooms ---------- */
+.bgrid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.panel h3{font-size:1rem;font-weight:800;display:flex;gap:8px;align-items:center}
+.panel .sub{font-size:.78rem;color:var(--ink-2);margin-top:3px}
+.bbar{height:14px;border-radius:999px;background:#EDEDED;overflow:hidden;display:flex;margin:16px 0 8px}
+.bseg{height:100%}
+.blegend{display:flex;gap:16px;flex-wrap:wrap;font-size:.75rem;color:var(--ink-2)}
+.blegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+.bnum{display:flex;justify-content:space-between;font-size:.8rem;margin-top:12px;color:var(--ink-2)}
+.bnum b{color:var(--ink);font-size:1rem}
+.roomrow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.roomrow:last-child{border:none}
+.roomthumb{width:52px;height:40px;border-radius:8px;overflow:hidden;flex:none}
+.roomthumb svg{width:100%;height:100%}
+.roomname{font-weight:700;font-size:.86rem;flex:1}
+.roomstat{font-size:.72rem;color:var(--ink-2)}
+.quiz{background:linear-gradient(120deg,var(--wf-purple) 0%,#A63FA6 100%);color:#fff;border-radius:var(--r);padding:18px;margin-top:16px}
+.quiz h4{font-weight:800;font-size:.95rem}
+.quiz p{font-size:.78rem;opacity:.9;margin-top:4px;line-height:1.5}
+.quiz .btn{background:var(--wf-yellow);color:var(--ink);margin-top:12px;font-size:.78rem;padding:8px 16px}
+.stylechips{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.schip{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);border-radius:999px;font-size:.7rem;font-weight:700;padding:4px 11px}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;border-radius:999px;padding:11px 22px;font-size:.84rem;font-weight:600;opacity:0;transition:all .3s;z-index:200;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- modal ---------- */
+.overlay{position:fixed;inset:0;background:rgba(30,20,30,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:520px;max-width:100%;max-height:88vh;overflow:auto;padding:26px 26px 22px;position:relative}
+.mclose{position:absolute;top:14px;right:16px;font-size:1.2rem;color:var(--ink-3);width:32px;height:32px;border-radius:50%}
+.mclose:hover{background:#F0F0F0}
+.modal h2{font-size:1.2rem;font-weight:800;letter-spacing:-.2px;padding-right:30px}
+.modal .msub{font-size:.82rem;color:var(--ink-2);margin-top:5px;line-height:1.5}
+.srcopt{display:flex;gap:13px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:14px;margin-top:11px;width:100%;text-align:left}
+.srcopt:hover{border-color:var(--wf-purple);background:var(--wf-purple-tint)}
+.srcicon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex:none;color:#fff;font-weight:800}
+.srcicon.ig{background:linear-gradient(45deg,#F58529,#DD2A7B,#8134AF)}
+.srcicon.cr{background:#B3540F}
+.srcicon.up{background:#0F5CA8}
+.srcicon.wf{background:var(--wf-purple)}
+.srcopt .t{font-weight:800;font-size:.9rem}
+.srcopt .d{font-size:.75rem;color:var(--ink-2);margin-top:2px;line-height:1.4}
+.steps{display:flex;gap:6px;margin:14px 0 4px}
+.stepdot{flex:1;height:4px;border-radius:99px;background:#E5E5E5}
+.stepdot.on{background:var(--wf-purple)}
+.consentbox{background:#FAF7FA;border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:14px}
+.consentbox .row{display:flex;gap:10px;align-items:flex-start;padding:8px 0;font-size:.82rem;line-height:1.45}
+.consentbox .row .tick{color:var(--green);font-weight:800;flex:none}
+.consentbox .row .cross{color:var(--red);font-weight:800;flex:none}
+.finelabel{font-size:.7rem;color:var(--ink-3);margin-top:10px;line-height:1.5}
+.pickgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}
+.pick{border:2px solid var(--line);border-radius:10px;overflow:hidden;position:relative;cursor:pointer;background:#fff;padding:0}
+.pick svg{width:100%;height:78px;display:block}
+.pick .pl{font-size:.68rem;font-weight:700;padding:6px 8px;display:block;text-align:left;color:var(--ink-2)}
+.pick.sel{border-color:var(--wf-purple)}
+.pick .chk{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:var(--wf-purple);color:#fff;font-size:.7rem;display:none;align-items:center;justify-content:center;font-weight:800}
+.pick.sel .chk{display:flex}
+.mfoot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.creatorcard{border:1.5px solid var(--line);border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center;margin-top:12px}
+.creatorcard .av{margin:0;border:none;width:44px;height:44px}
+.creatorcard .cn{font-weight:800;font-size:.9rem}
+.creatorcard .cd{font-size:.74rem;color:var(--ink-2);margin-top:2px}
+.followbtn{margin-left:auto;border:1.5px solid var(--wf-purple);color:var(--wf-purple);border-radius:999px;font-weight:800;font-size:.75rem;padding:7px 14px;flex:none}
+.followbtn.done{background:var(--wf-purple-tint)}
+.field{margin-top:14px}
+.field label{display:block;font-size:.76rem;font-weight:800;color:var(--ink-2);margin-bottom:6px}
+.field input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;font-family:inherit;font-size:.86rem;outline:none}
+.field input:focus{border-color:var(--wf-purple)}
+.roleopt{display:flex;gap:11px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:12px;margin-top:9px;cursor:pointer}
+.roleopt.sel{border-color:var(--wf-purple);background:var(--wf-purple-tint)}
+.roleopt .rt{font-weight:800;font-size:.85rem}
+.roleopt .rd{font-size:.73rem;color:var(--ink-2);margin-top:2px;line-height:1.4}
+.radio{width:18px;height:18px;border-radius:50%;border:2px solid #BDBDBD;flex:none;margin-top:2px}
+.roleopt.sel .radio{border-color:var(--wf-purple);background:radial-gradient(circle at center,var(--wf-purple) 0 5px,#fff 6px)}
+
+/* footer note */
+.casefoot{margin-top:34px;border-top:1px solid var(--line);padding-top:14px;font-size:.72rem;color:var(--ink-3);line-height:1.6}
+
+@media (max-width:820px){
+  .discuss{grid-template-columns:1fr}
+  .bgrid{grid-template-columns:1fr}
+  .slrow{grid-template-columns:1fr}
+  .slart{height:130px}
+  .top-icons .lbl{display:none}
+}
+</style>
+</head>
+<body class="showroadmap">
+
+<!-- ======= Wayfair chrome ======= -->
+<div class="topbar"><div class="topbar-in">
+  <div class="wordmark">Wayfair</div>
+  <div class="searchbox"><input placeholder="Find anything home…"><button class="go">Search</button></div>
+  <div class="top-icons">
+    <div class="ic"><span>👤</span><span class="lbl">Account</span></div>
+    <div class="ic"><span>📁</span><span class="lbl" style="color:var(--wf-purple)">Projects</span></div>
+    <div class="ic cartpill"><span>🛒</span><span class="lbl">Cart</span><span class="cartcount" id="cartcount">0</span></div>
+  </div>
+</div></div>
+<div class="subnav"><div class="subnav-in">
+  <span>Furniture</span><span>Outdoor</span><span>Bedding &amp; Bath</span><span>Rugs</span><span>Décor &amp; Pillows</span><span>Lighting</span><span>Organization</span><span class="active">My Projects</span><span>Sale</span>
+</div></div>
+
+<div class="wrap">
+  <div class="crumb">My Projects &rsaquo; <b>Our First Living Room</b></div>
+
+  <!-- ======= Project header ======= -->
+  <div class="projhead">
+    <div class="projmeta">
+      <div class="projtitle">
+        <h1>Our First Living Room</h1>
+        <span class="roombadge">Living room · 2BHK</span>
+        <span class="qchip q1">Q1 · Create project</span>
+      </div>
+      <div class="projsub">Started 12 June · Target: ready before Thanksgiving · Style profile: <b>Warm Modern</b> <span class="qchip q1">Q1 · Style quiz</span></div>
+    </div>
+    <div>
+      <div class="members" id="memberrow">
+        <div class="av maya" title="Maya (you)">M</div>
+        <div class="av rohan" title="Rohan">R</div>
+        <button class="av add" onclick="openModal('invite')" title="Add household member or professional">+</button>
+      </div>
+      <div class="memlabel">Maya (you) · Rohan <span class="qchip q1">Q1 · Add family member</span></div>
+    </div>
+    <div class="projactions">
+      <button class="btn btn-primary" onclick="openModal('addsrc')">+ Add inspiration</button>
+      <button class="btn btn-ghost" onclick="openModal('invite')">Invite</button>
+    </div>
+  </div>
+
+  <div class="roadmapbar">
+    <div style="font-size:.8rem;color:var(--ink-2)">You're viewing as <b style="color:var(--wf-purple)">Maya</b>. Rohan reviewed ideas last night — 3 are waiting on your vote.</div>
+    <div class="rtoggle">Show roadmap labels
+      <div class="switch on" id="rswitch" onclick="toggleRoadmap()"></div>
+    </div>
+  </div>
+
+  <!-- ======= Tabs ======= -->
+  <div class="tabs">
+    <button class="tab active" data-pane="ideas" onclick="showPane('ideas')">Ideas <span class="count" id="ideacount">6</span></button>
+    <button class="tab" data-pane="shortlist" onclick="showPane('shortlist')">Shortlist <span class="count" id="slcount">1</span></button>
+    <button class="tab" data-pane="discuss" onclick="showPane('discuss')">Discuss <span class="count" id="dcount">2</span></button>
+    <button class="tab" data-pane="budget" onclick="showPane('budget')">Budget &amp; Rooms <span class="qchip q2" style="display:inline-block">Q2 · Budget</span></button>
+  </div>
+
+  <!-- ======= IDEAS ======= -->
+  <div class="pane active" id="pane-ideas">
+    <div class="boardtools">
+      <button class="filter active" data-f="all" onclick="setFilter('all')">All ideas</button>
+      <button class="filter" data-f="instagram" onclick="setFilter('instagram')">From Instagram <span class="qchip qL">Later</span></button>
+      <button class="filter" data-f="creator" onclick="setFilter('creator')">From creators <span class="qchip qL">Later</span></button>
+      <button class="filter" data-f="upload" onclick="setFilter('upload')">Screenshots <span class="qchip q2">Q2</span></button>
+      <button class="filter" data-f="wayfair" onclick="setFilter('wayfair')">Saved from Wayfair <span class="qchip q1">Q1</span></button>
+    </div>
+    <div class="grid" id="ideagrid"></div>
+    <div class="sectionlabel">Passed on <span style="font-weight:600;text-transform:none;letter-spacing:0">— kept for 30 days in case you change your mind</span></div>
+    <div class="grid passedwrap" id="passedgrid"></div>
+  </div>
+
+  <!-- ======= SHORTLIST ======= -->
+  <div class="pane" id="pane-shortlist">
+    <div style="font-size:.82rem;color:var(--ink-2);margin-bottom:14px">Ideas you <b>both</b> shortlisted, matched to items you can buy today. Adding a match to cart keeps it tied to this project. <span class="qchip q1">Q1 · Add product from Wayfair</span></div>
+    <div id="sllist"></div>
+  </div>
+
+  <!-- ======= DISCUSS ======= -->
+  <div class="pane" id="pane-discuss">
+    <div class="discuss">
+      <div class="dlist" id="dlist"></div>
+      <div class="thread">
+        <div id="threadhead" style="font-weight:800;margin-bottom:12px"></div>
+        <div id="threadmsgs"></div>
+        <div class="composer">
+          <input id="composeinput" placeholder="Reply to Rohan…" onkeydown="if(event.key==='Enter')sendMsg()">
+          <button class="btn btn-primary" style="padding:9px 18px" onclick="sendMsg()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= BUDGET & ROOMS ======= -->
+  <div class="pane" id="pane-budget">
+    <div class="bgrid">
+      <div class="panel">
+        <h3>Project budget <span class="qchip q2">Q2 · Add a budget</span></h3>
+        <div class="sub">Set together with Rohan on 14 June. Hero pieces first, accents phased over 3 months.</div>
+        <div class="bbar">
+          <div class="bseg" style="width:31%;background:var(--wf-purple)"></div>
+          <div class="bseg" style="width:11%;background:#C77DC7"></div>
+        </div>
+        <div class="blegend">
+          <span><i style="background:var(--wf-purple)"></i>Spent — $3,680</span>
+          <span><i style="background:#C77DC7"></i>In cart — $1,320</span>
+          <span><i style="background:#EDEDED"></i>Remaining — $7,000</span>
+        </div>
+        <div class="bnum"><span>Total budget</span><b>$12,000</b></div>
+        <div class="bnum"><span>Phase 1 · Hero pieces (sofa, rug, coffee table)</span><b>$5,000</b></div>
+        <div class="bnum"><span>Phase 2 · Lighting &amp; accents (Aug–Sep)</span><b>$4,000</b></div>
+        <div class="quiz">
+          <h4>Your household style profile</h4>
+          <p>Built from your style quiz + saved ideas. One profile, two people: Maya leans texture and mood, Rohan checks dimensions and budget. Recommendations balance both.</p>
+          <div class="stylechips"><span class="schip">Warm Modern</span><span class="schip">Walnut + bouclé</span><span class="schip">Low-profile</span><span class="schip">Fits 3.6m wall</span></div>
+          <button class="btn" onclick="toast('Style quiz opens — 8 quick this-or-that picks (Q1)')">Retake style quiz</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Rooms in this project <span class="qchip q1">Q1 · Save room</span></h3>
+        <div class="sub">Saved dimensions apply to every idea and product match — fit warnings show automatically.</div>
+        <div class="roomrow">
+          <div class="roomthumb"><svg viewBox="0 0 52 40"><rect width="52" height="40" fill="#EFE6DA"/><rect x="6" y="22" width="24" height="10" rx="2" fill="#8A6A4F"/><rect x="36" y="14" width="9" height="18" rx="1" fill="#C9B39A"/></svg></div>
+          <div><div class="roomname">Living room</div><div class="roomstat">3.6m × 4.2m · sofa wall 3.6m · 14 ideas</div></div>
+          <div class="roomstat" style="color:var(--green);font-weight:700">Active</div>
+        </div>
+        <div class="roomrow">
+          <div class="roomthumb"><svg viewBox="0 0 52 40"><rect width="52" height="40" fill="#E3E9EF"/><rect x="8" y="18" width="28" height="14" rx="2" fill="#5E7A96"/></svg></div>
+          <div><div class="roomname">Bedroom</div><div class="roomstat">3.0m × 3.4m · 2 ideas</div></div>
+          <div class="roomstat">Planned · Phase 3</div>
+        </div>
+        <div class="roomrow">
+          <div class="roomthumb"><svg viewBox="0 0 52 40"><rect width="52" height="40" fill="#EAEFE3"/><rect x="10" y="20" width="18" height="12" rx="2" fill="#7E9464"/></svg></div>
+          <div><div class="roomname">Balcony</div><div class="roomstat">Not measured yet</div></div>
+          <button class="roomstat" style="color:var(--wf-purple);font-weight:700" onclick="toast('Room measurement flow — enter dimensions or scan with phone camera')">+ Measure</button>
+        </div>
+        <div style="margin-top:14px">
+          <button class="btn btn-ghost" style="width:100%" onclick="toast('Spatial planner opens with your saved room dimensions (memo feature 4)')">Open spatial planner</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="casefoot">
+    <b>Case artifact — Workstream 2: Live Project Workspace.</b> Prototype maps to memo features 1–5: household &amp; professional collaboration (invite flow), consented social import from creators (Instagram + creator flows, Later), media upload (Q2 screenshots), budget + spatial + project tools in one workspace (Budget &amp; Rooms tab), designer sharing (invite roles). Success metrics instrumented in this flow: projects with ≥2 collaborators, inspiration-to-cart time (idea → shortlist → matched product → cart), project-to-cart conversion, Project AOV.
+  </div>
+</div>
+
+<!-- ======= Modals ======= -->
+<div class="overlay" id="ov">
+  <!-- Add inspiration source picker -->
+  <div class="modal" id="m-addsrc" style="display:none">
+    <button class="mclose" onclick="closeModal()">✕</button>
+    <h2>Add inspiration</h2>
+    <div class="msub">Everything lands on the shared board, so Rohan sees it too.</div>
+    <button class="srcopt" onclick="openModal('instagram')"><div class="srcicon ig">IG</div><div><div class="t">Connect Instagram <span class="qchip qL">Later</span></div><div class="d">Import your saved posts and the creators you follow — with your consent, nothing else.</div></div></button>
+    <button class="srcopt" onclick="openModal('creator')"><div class="srcicon cr">✦</div><div><div class="t">From a creator <span class="qchip qL">Later</span></div><div class="d">Follow a creator's Wayfair profile and pull their shoppable room edits.</div></div></button>
+    <button class="srcopt" onclick="uploadFlow()"><div class="srcicon up">⬆</div><div><div class="t">Upload a screenshot <span class="qchip q2">Q2</span></div><div class="d">Pinterest, WhatsApp, anywhere — we'll match items in it to things you can buy.</div></div></button>
+    <button class="srcopt" onclick="toast('Browse Wayfair — every product page now has Save to project (Q1)');closeModal()"><div class="srcicon wf">W</div><div><div class="t">Save from Wayfair <span class="qchip q1">Q1</span></div><div class="d">Browse the catalog and save products straight into this project.</div></div></button>
+  </div>
+
+  <!-- Instagram consent flow -->
+  <div class="modal" id="m-instagram" style="display:none">
+    <button class="mclose" onclick="closeModal()">✕</button>
+    <div id="igstep1">
+      <h2>Connect Instagram</h2>
+      <div class="steps"><div class="stepdot on"></div><div class="stepdot"></div><div class="stepdot"></div></div>
+      <div class="msub">Step 1 of 3 — what Wayfair can and can't see. You stay in control and can disconnect anytime from Account settings.</div>
+      <div class="consentbox">
+        <div class="row"><span class="tick">✓</span><span><b>Posts you've saved</b> — so your inspiration lives in one place</span></div>
+        <div class="row"><span class="tick">✓</span><span><b>Home &amp; décor creators you follow</b> — to suggest shoppable edits</span></div>
+        <div class="row"><span class="cross">✕</span><span>Your DMs, comments, followers, or anything you post</span></div>
+        <div class="row"><span class="cross">✕</span><span>Nothing is shared back to Instagram, ever</span></div>
+      </div>
+      <div class="finelabel">This import also improves your household style profile. Rohan will see imported ideas on the shared board, marked with your name. You can keep any import private before adding it.</div>
+      <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">Not now</button><button class="btn btn-primary" onclick="igNext(2)">Agree &amp; continue</button></div>
+    </div>
+    <div id="igstep2" style="display:none">
+      <h2>Choose what to import</h2>
+      <div class="steps"><div class="stepdot on"></div><div class="stepdot on"></div><div class="stepdot"></div></div>
+      <div class="msub">Step 2 of 3 — we found 2 saved collections and 3 home creators you follow. Pick what's relevant to this project.</div>
+      <div class="pickgrid" id="igpicks"></div>
+      <div class="mfoot"><button class="btn btn-ghost" onclick="igNext(1)">Back</button><button class="btn btn-primary" onclick="igNext(3)">Import selected</button></div>
+    </div>
+    <div id="igstep3" style="display:none">
+      <h2>Imported to your board</h2>
+      <div class="steps"><div class="stepdot on"></div><div class="stepdot on"></div><div class="stepdot on"></div></div>
+      <div class="msub">Step 3 of 3 — 2 ideas added to <b>Our First Living Room</b>, tagged "From Instagram". We matched furniture in the images to 6 similar Wayfair items — see them once you and Rohan shortlist.</div>
+      <div class="consentbox" style="margin-top:14px">
+        <div class="row"><span class="tick">✓</span><span>Imports refresh weekly. Manage or disconnect under <b>Account → Connected apps</b>.</span></div>
+      </div>
+      <div class="mfoot"><button class="btn btn-primary" onclick="finishIg()">Done</button></div>
+    </div>
+  </div>
+
+  <!-- Creator flow -->
+  <div class="modal" id="m-creator" style="display:none">
+    <button class="mclose" onclick="closeModal()">✕</button>
+    <h2>Import from a creator</h2>
+    <div class="msub">Creators you follow can publish shoppable room edits on Wayfair. Import an edit and every item in it is already matched to the catalog.</div>
+    <div class="field"><label>Search creators</label><input value="@urbannest.diaries" readonly></div>
+    <div class="creatorcard">
+      <div class="av" style="background:#B3540F">U</div>
+      <div><div class="cn">Urban Nest Diaries <span style="color:var(--wf-purple);font-size:.7rem;font-weight:800">· Wayfair Creator</span></div><div class="cd">412K followers · Small-space warm modern · 8 shoppable edits</div></div>
+      <button class="followbtn" id="followbtn" onclick="this.textContent='Following ✓';this.classList.add('done')">Follow</button>
+    </div>
+    <div class="creatorcard" style="border-color:var(--wf-purple);background:var(--wf-purple-tint)">
+      <div style="width:44px;height:44px;border-radius:10px;overflow:hidden;flex:none"><svg viewBox="0 0 44 44"><rect width="44" height="44" fill="#E8D9C5"/><rect x="6" y="24" width="22" height="10" rx="2" fill="#9A6A3F"/><circle cx="35" cy="14" r="5" fill="#D9B98F"/></svg></div>
+      <div><div class="cn">"3.6m wall, warm modern" edit</div><div class="cd">Sofa + rug + arc lamp + art wall · 9 items · fits your saved living room</div></div>
+      <button class="followbtn" onclick="importCreator()">Import edit</button>
+    </div>
+    <div class="finelabel">You're importing the creator's public edit — no access to your Instagram account is needed for this. Creators earn a commission if you buy from their edit; prices don't change for you.</div>
+  </div>
+
+  <!-- Invite flow -->
+  <div class="modal" id="m-invite" style="display:none">
+    <button class="mclose" onclick="closeModal()">✕</button>
+    <h2>Invite to this project</h2>
+    <div class="msub">Collaborators see the board, vote on ideas, and comment — the discussion that used to live in WhatsApp stays with the project.</div>
+    <div class="field"><label>Email or phone</label><input id="invemail" placeholder="priya@studioverde.com"></div>
+    <label style="display:block" class="field"><span style="display:block;font-size:.76rem;font-weight:800;color:var(--ink-2);margin-bottom:2px">Their role</span></label>
+    <div class="roleopt sel" onclick="pickRole(this,'household')"><div class="radio"></div><div><div class="rt">Household member</div><div class="rd">Full partner — votes count toward shortlisting, can edit budget and rooms. Their saves and quiz answers join the shared style profile.</div></div></div>
+    <div class="roleopt" onclick="pickRole(this,'designer')"><div class="radio"></div><div><div class="rt">Design professional <span class="qchip q1" style="display:inline-block">Q1</span></div><div class="rd">Your independent designer — can add ideas, comment, and propose product matches. Can't see your budget breakdown unless you share it.</div></div></div>
+    <div class="roleopt" onclick="pickRole(this,'viewer')"><div class="radio"></div><div><div class="rt">Viewer</div><div class="rd">Parents, friends — can see and comment, can't vote or edit.</div></div></div>
+    <div class="finelabel">Invites expire in 7 days. You can change or remove anyone's access from project settings.</div>
+    <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="sendInvite()">Send invite</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- data ---------------- */
+/* Simple SVG scene generator so cards feel like room photos without external images */
+function art(seed){
+  const palettes = [
+    ['#EFE4D4','#8A6A4F','#C9B39A','#5C4632'],
+    ['#E9E2D8','#9A6A3F','#D9B98F','#3F4A3C'],
+    ['#EDE7DE','#77604B','#CBB79B','#8C4A2F'],
+    ['#E7E2DA','#556052','#C4B49A','#2F3A34'],
+    ['#F0E8DC','#8A5A3F','#D8C3A5','#4A3A5F'],
+    ['#EAE4DB','#6B5A4A','#CFC0A8','#7F187F']
+  ];
+  const p = palettes[seed % palettes.length];
+  const lampX = 40 + (seed*37)%160;
+  return `<svg viewBox="0 0 260 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <rect width="260" height="160" fill="${p[0]}"/>
+    <rect y="118" width="260" height="42" fill="${p[2]}" opacity=".55"/>
+    <rect x="26" y="82" width="118" height="34" rx="8" fill="${p[1]}"/>
+    <rect x="26" y="70" width="118" height="18" rx="8" fill="${p[1]}" opacity=".8"/>
+    <rect x="30" y="116" width="8" height="10" fill="${p[3]}"/><rect x="132" y="116" width="8" height="10" fill="${p[3]}"/>
+    <rect x="168" y="60" width="52" height="66" rx="3" fill="${p[3]}" opacity=".85"/>
+    <rect x="176" y="68" width="36" height="22" rx="2" fill="${p[0]}" opacity=".7"/>
+    <circle cx="${lampX}" cy="34" r="12" fill="${p[3]}" opacity=".9"/>
+    <line x1="${lampX}" y1="0" x2="${lampX}" y2="24" stroke="${p[3]}" stroke-width="3"/>
+    <ellipse cx="86" cy="132" rx="52" ry="8" fill="${p[3]}" opacity=".25"/>
+  </svg>`;
+}
+function prodArt(seed){
+  const c=['#8A6A4F','#556052','#9A6A3F','#5E7A96','#7F187F','#8C4A2F'][seed%6];
+  return `<svg viewBox="0 0 168 88" preserveAspectRatio="xMidYMid slice"><rect width="168" height="88" fill="#F3EFE9"/><rect x="34" y="34" width="100" height="30" rx="7" fill="${c}"/><rect x="34" y="24" width="100" height="16" rx="7" fill="${c}" opacity=".8"/><rect x="38" y="64" width="7" height="9" fill="#4A3A2A"/><rect x="123" y="64" width="7" height="9" fill="#4A3A2A"/></svg>`;
+}
+
+const SRC = {
+  instagram:{label:'From Instagram', icon:'📷', chip:'qL'},
+  creator:{label:'Creator edit', icon:'✦', chip:'qL'},
+  upload:{label:'Screenshot', icon:'⬆', chip:'q2'},
+  wayfair:{label:'Saved from Wayfair', icon:'W', chip:'q1'}
+};
+
+let ideas = [
+  {id:1, title:'Bouclé 3-seater against the long wall', note:'Maya saved from Wayfair · fits your 3.6m wall', src:'wayfair', maya:'love', rohan:'love', state:'shortlist', seed:0,
+   products:[{n:'Mercer41 Bouclé 3-Seater Sofa, Ivory',p:'$899',s:0},{n:'Sand & Stable Walnut Coffee Table',p:'$249',s:1},{n:'Kelly Clarkson Home Jute Rug 8×10',p:'$179',s:2}],
+   thread:[{who:'rohan',t:'Measured the wall again — 3.6m exactly. This fits with 20cm to spare on each side.'},{who:'maya',t:'And the bouclé won\'t fight with the walnut TV unit. Shortlisting.'}]},
+  {id:2, title:'Warm arc lamp corner from @urbannest.diaries', note:'Imported from creator edit · 9 shoppable items', src:'creator', maya:null, rohan:'love', state:'open', seed:1,
+   products:[{n:'George Oliver Arc Floor Lamp, Brass',p:'$139',s:3},{n:'Wade Logan Side Table, Cane',p:'$99',s:4}],
+   thread:[{who:'rohan',t:'This lamp is the vibe. Also it\'s within the Phase-2 accents budget.'}]},
+  {id:3, title:'Gallery wall over the sofa', note:'Screenshot Maya uploaded from Pinterest', src:'upload', maya:null, rohan:'love', state:'open', seed:2,
+   products:[{n:'17 Stories Frame Set of 6, Oak',p:'$79',s:5}],
+   thread:[{who:'rohan',t:'Nice but let\'s decide the sofa first, frames depend on its height?'}]},
+  {id:4, title:'Dark green accent wall + rattan', note:'From Instagram · your saved collection "LR ideas"', src:'instagram', maya:null, rohan:'pass', state:'open', seed:3,
+   products:[], thread:[{who:'rohan',t:'Too dark for a north-facing room I think. Passing, but see what you feel.'}]},
+  {id:5, title:'Low walnut TV console, wall-mounted', note:'Maya saved from Wayfair', src:'wayfair', maya:'love', rohan:null, state:'open', seed:4,
+   products:[{n:'Foundstone Floating TV Unit 180cm, Walnut',p:'$379',s:0}], thread:[]},
+  {id:6, title:'Cane bar cart for the corner', note:'From Instagram · creator you follow reshared', src:'instagram', maya:null, rohan:null, state:'open', seed:5,
+   products:[{n:'Bay Isle Cane Bar Cart',p:'$129',s:2}], thread:[]},
+  {id:7, title:'Terrazzo side tables (pair)', note:'Screenshot from WhatsApp — Rohan\'s sister sent it', src:'upload', maya:'pass', rohan:'pass', state:'passed', seed:2,
+   products:[], thread:[{who:'maya',t:'Cute but it clashes with warm modern. Pass?'},{who:'rohan',t:'Agree, pass.'}]}
+];
+let filter='all', activeThread=1, cart=0;
+
+/* ---------------- render: ideas ---------------- */
+function voteRow(i){
+  const md = i.maya==='love'?'<div class="vdot m" title="Maya shortlisted">M</div>': i.maya==='pass'?'<div class="vdot m" style="background:#B3261E" title="Maya passed">M</div>':'<div class="vdot pending" title="Waiting on Maya">M</div>';
+  const rd = i.rohan==='love'?'<div class="vdot r" title="Rohan shortlisted">R</div>': i.rohan==='pass'?'<div class="vdot r" style="background:#B3261E" title="Rohan passed">R</div>':'<div class="vdot pending" title="Waiting on Rohan">R</div>';
+  let txt='No votes yet';
+  if(i.rohan==='love'&&!i.maya) txt='Rohan shortlisted — your call';
+  else if(i.rohan==='pass'&&!i.maya) txt='Rohan passed — your call';
+  else if(i.maya&&!i.rohan) txt='Waiting on Rohan';
+  else if(i.maya&&i.rohan) txt='Both voted';
+  return `<div class="votes">${md}${rd}<span>${txt}</span></div>`;
+}
+function strip(i){
+  if(i.state==='shortlist') return '<div class="state-strip agree">✓ Shortlisted by both — see product matches in Shortlist</div>';
+  if(i.state==='passed') return '<div class="state-strip out">Passed</div>';
+  if(i.rohan&&!i.maya) return '<div class="state-strip wait">Needs your vote</div>';
+  return '';
+}
+function cardHTML(i){
+  const s=SRC[i.src];
+  return `<div class="card" data-src="${i.src}">
+    ${strip(i)}
+    <div class="art">${art(i.seed)}<div class="srcbadge">${s.icon} ${s.label} <span class="qchip ${s.chip}">${s.chip==='q1'?'Q1':s.chip==='q2'?'Q2':'Later'}</span></div></div>
+    <div class="cbody"><div class="ctitle">${i.title}</div><div class="cnote">${i.note}</div>${voteRow(i)}</div>
+    <div class="cacts">
+      <button class="cact love ${i.maya==='love'?'on':''}" onclick="vote(${i.id},'love')">♥ Shortlist</button>
+      <button class="cact pass ${i.maya==='pass'?'on':''}" onclick="vote(${i.id},'pass')">✕ Pass</button>
+      <button class="cact" onclick="goDiscuss(${i.id})">💬 ${i.thread.length||''} Discuss</button>
+    </div>
+  </div>`;
+}
+function renderIdeas(){
+  const open = ideas.filter(i=>i.state!=='passed' && i.state!=='shortlist' && (filter==='all'||i.src===filter));
+  const passed = ideas.filter(i=>i.state==='passed' && (filter==='all'||i.src===filter));
+  document.getElementById('ideagrid').innerHTML = open.map(cardHTML).join('') +
+    `<button class="addcard" onclick="openModal('addsrc')"><div class="plus">+</div><div>Add inspiration</div><div style="font-size:.72rem;font-weight:600;color:var(--ink-2)">Instagram · creators · screenshots · Wayfair</div></button>`;
+  document.getElementById('passedgrid').innerHTML = passed.length? passed.map(cardHTML).join('') : '<div class="empty" style="grid-column:1/-1">Nothing passed yet — pass an idea and it lands here for 30 days.</div>';
+  document.getElementById('ideacount').textContent = ideas.filter(i=>i.state==='open').length;
+  document.getElementById('slcount').textContent = ideas.filter(i=>i.state==='shortlist').length;
+  document.getElementById('dcount').textContent = ideas.filter(i=>i.thread.length).length;
+}
+
+/* ---------------- votes ---------------- */
+function vote(id, v){
+  const i = ideas.find(x=>x.id===id);
+  i.maya = i.maya===v? null : v;
+  if(i.maya==='love' && i.rohan==='love'){ i.state='shortlist'; toast('Shortlisted — you and Rohan both said yes ♥ Product matches ready.'); }
+  else if(i.maya==='pass'){ i.state='passed'; toast('Passed. Rohan will see this — it stays recoverable for 30 days.'); }
+  else { i.state='open'; if(i.maya==='love') toast('You shortlisted — waiting on Rohan\'s vote.'); }
+  renderIdeas(); renderShortlist(); renderDiscussList();
+}
+
+/* ---------------- shortlist ---------------- */
+function renderShortlist(){
+  const sl = ideas.filter(i=>i.state==='shortlist');
+  const el = document.getElementById('sllist');
+  if(!sl.length){ el.innerHTML='<div class="empty"><b>Nothing shortlisted yet.</b><br>When you and Rohan both ♥ an idea, it moves here with matched Wayfair products.</div>'; return; }
+  el.innerHTML = sl.map(i=>`
+    <div class="slrow">
+      <div class="slart">${art(i.seed)}</div>
+      <div>
+        <div class="slhead">
+          <div><div class="sltitle">${i.title}</div><div class="slmeta">Shortlisted by Maya &amp; Rohan · ${SRC[i.src].label}</div></div>
+          <button class="btn btn-ghost" style="padding:7px 14px;font-size:.75rem" onclick="goDiscuss(${i.id})">💬 Discuss</button>
+        </div>
+        <div class="matchlabel">Shop this look — ${i.products.length} matched item${i.products.length>1?'s':''}</div>
+        <div class="prodrow">${i.products.map((p,idx)=>`
+          <div class="prod"><div class="prodart">${prodArt(p.s)}</div>
+            <div class="prodbody"><div class="prodname">${p.n}</div><div class="prodprice">${p.p}</div>
+            <button class="prodadd" onclick="addCart(this)">Add to project cart</button></div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`).join('');
+}
+function addCart(btn){
+  if(btn.classList.contains('added')) return;
+  btn.classList.add('added'); btn.textContent='In project cart ✓';
+  cart++; document.getElementById('cartcount').textContent=cart;
+  toast('Added to project cart — stays linked to Our First Living Room and counts toward the budget.');
+}
+
+/* ---------------- discuss ---------------- */
+function renderDiscussList(){
+  const withThread = ideas.filter(i=>i.thread.length || i.id===activeThread);
+  document.getElementById('dlist').innerHTML = withThread.map(i=>`
+    <div class="ditem ${i.id===activeThread?'active':''}" onclick="setThread(${i.id})">
+      <div class="t">${i.title}</div>
+      <div class="s">${i.thread.length} comment${i.thread.length===1?'':'s'} · ${i.state==='shortlist'?'✓ shortlisted':i.state==='passed'?'passed':'undecided'}</div>
+    </div>`).join('');
+  renderThread();
+}
+function setThread(id){ activeThread=id; renderDiscussList(); }
+function renderThread(){
+  const i = ideas.find(x=>x.id===activeThread);
+  document.getElementById('threadhead').textContent = i.title;
+  const msgs = i.thread.map(m=>{
+    const me = m.who==='maya';
+    return `<div class="msg ${me?'me':''}">
+      <div class="av ${m.who}">${m.who==='maya'?'M':'R'}</div>
+      <div><div class="msgwho" ${me?'style="text-align:right"':''}>${m.who==='maya'?'You':'Rohan'}</div><div class="bubble">${m.t}</div></div>
+    </div>`;
+  }).join('');
+  const chips = i.state==='open'? `<div class="decisionchips">
+      <span style="font-size:.72rem;color:var(--ink-3);align-self:center;font-weight:700">Decide right here:</span>
+      <button class="dchip yes" onclick="vote(${i.id},'love')">♥ Shortlist it</button>
+      <button class="dchip no" onclick="vote(${i.id},'pass')">✕ Pass</button>
+    </div>` : `<div class="decisionchips"><span class="dchip done">${i.state==='shortlist'?'✓ Shortlisted by both':'Passed'}</span></div>`;
+  document.getElementById('threadmsgs').innerHTML = msgs + chips;
+}
+function sendMsg(){
+  const inp = document.getElementById('composeinput');
+  if(!inp.value.trim()) return;
+  const i = ideas.find(x=>x.id===activeThread);
+  i.thread.push({who:'maya', t:inp.value.trim()});
+  inp.value='';
+  renderDiscussList(); renderIdeas();
+  setTimeout(()=>{ i.thread.push({who:'rohan', t:'Seen 👍 let\'s lock it this weekend.'}); if(activeThread===i.id) renderThread(); }, 1400);
+}
+function goDiscuss(id){ activeThread=id; showPane('discuss'); renderDiscussList(); }
+
+/* ---------------- tabs / filters / roadmap ---------------- */
+function showPane(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.pane===name));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('active', p.id==='pane-'+name));
+}
+function setFilter(f){
+  filter=f;
+  document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active', b.dataset.f===f));
+  renderIdeas();
+}
+function toggleRoadmap(){
+  document.body.classList.toggle('showroadmap');
+  document.getElementById('rswitch').classList.toggle('on');
+}
+
+/* ---------------- modals ---------------- */
+function openModal(name){
+  document.querySelectorAll('.modal').forEach(m=>m.style.display='none');
+  document.getElementById('m-'+name).style.display='block';
+  document.getElementById('ov').classList.add('open');
+  if(name==='instagram'){ igNext(1); buildPicks(); }
+}
+function closeModal(){ document.getElementById('ov').classList.remove('open'); }
+document.getElementById('ov').addEventListener('click', e=>{ if(e.target.id==='ov') closeModal(); });
+
+function igNext(step){ [1,2,3].forEach(s=>document.getElementById('igstep'+s).style.display = s===step?'block':'none'); }
+function buildPicks(){
+  const picks=[
+    {l:'Saved · "LR ideas" (14)',seed:3,sel:true},{l:'Saved · "Someday home" (32)',seed:1,sel:false},
+    {l:'@urbannest.diaries',seed:0,sel:true},{l:'@theloftedit',seed:4,sel:false},{l:'@smallspace.stories',seed:2,sel:false},{l:'@warm.minimal',seed:5,sel:false}
+  ];
+  document.getElementById('igpicks').innerHTML = picks.map((p,i)=>`
+    <button class="pick ${p.sel?'sel':''}" onclick="this.classList.toggle('sel')"><div class="chk">✓</div>${art(p.seed)}<span class="pl">${p.l}</span></button>`).join('');
+}
+function finishIg(){
+  closeModal();
+  ideas.unshift({id:99, title:'Linen curtains + floor cushions', note:'From Instagram · just imported from "LR ideas"', src:'instagram', maya:null, rohan:null, state:'open', seed:1, products:[{n:'Eider & Ivory Linen Curtains (pair)',p:'$65',s:3}], thread:[]});
+  setFilter('instagram'); showPane('ideas'); renderIdeas();
+  toast('2 ideas imported from Instagram — Rohan can see them too.');
+}
+function importCreator(){
+  closeModal();
+  ideas.unshift({id:98, title:'Creator edit: "3.6m wall, warm modern"', note:'Creator edit · 9 items pre-matched · fits your living room', src:'creator', maya:null, rohan:null, state:'open', seed:0, products:[{n:'Arc Floor Lamp, Brass',p:'$139',s:3},{n:'Bouclé Lounge Chair',p:'$289',s:1}], thread:[]});
+  setFilter('creator'); showPane('ideas'); renderIdeas();
+  toast('Creator edit imported — every item is already shoppable.');
+}
+function uploadFlow(){
+  closeModal();
+  ideas.unshift({id:97, title:'New screenshot upload', note:'Screenshot · matching items in the image… 3 matches found', src:'upload', maya:null, rohan:null, state:'open', seed:4, products:[{n:'Matched: Rattan Accent Chair',p:'$189',s:2}], thread:[]});
+  setFilter('upload'); showPane('ideas'); renderIdeas();
+  toast('Screenshot added — we matched 3 Wayfair items inside it (Q2).');
+}
+function pickRole(el){ document.querySelectorAll('.roleopt').forEach(r=>r.classList.remove('sel')); el.classList.add('sel'); }
+function sendInvite(){
+  closeModal();
+  const row=document.getElementById('memberrow');
+  if(!document.getElementById('av-priya')){
+    const d=document.createElement('div'); d.className='av priya'; d.id='av-priya'; d.title='Priya (Designer) — invited'; d.textContent='P'; d.style.opacity='.55';
+    row.insertBefore(d, row.lastElementChild);
+  }
+  toast('Invite sent to Priya (Design professional) — she\'ll see the board, not your budget.');
+}
+
+/* ---------------- toast ---------------- */
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+/* init */
+renderIdeas(); renderShortlist(); renderDiscussList();
+</script>
+</body>
+</html>
