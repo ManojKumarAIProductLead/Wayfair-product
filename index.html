@@ -3,738 +3,1093 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wayfair — Project Workspace (WS2 Prototype)</title>
+<title>My Room, Planned — Wayfair WS2 Prototype</title>
+<meta name="description" content="Budget-Fit Room Plan — a done-for-you project planner prototype (Wayfair Workstream 2).">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --wf-purple:#7F187F; --wf-purple-dark:#5F0F5F; --wf-purple-tint:#F6EDF6;
+  --wf-purple:#7F187F; --wf-purple-dark:#5F0F5F; --wf-purple-tint:#F7EDF7; --wf-purple-200:#EAD3EA;
   --wf-yellow:#FFDD00;
-  --ink:#2F2F2F; --ink-2:#585858; --ink-3:#8A8A8A;
-  --line:#E2E2E2; --bg:#F5F5F3; --card:#FFFFFF;
-  --green:#1F7A33; --green-tint:#E9F5EC;
+  --ink:#26232B; --ink-2:#57525E; --ink-3:#8B858F;
+  --line:#E7E2EA; --line-2:#F0ECF2;
+  --bg:#FAF7FB; --card:#FFFFFF;
+  --green:#1E7A46; --green-tint:#E9F5EE;
+  --amber:#9A6B12; --amber-tint:#FBF2E0;
   --red:#B3261E; --red-tint:#FBEDEC;
-  --blue:#0F5CA8;
-  --r:12px;
+  --r:14px; --r-sm:10px; --r-lg:20px;
+  --shadow-sm:0 1px 2px rgba(38,35,43,.06),0 1px 3px rgba(38,35,43,.05);
+  --shadow-md:0 6px 20px rgba(38,35,43,.09);
+  --shadow-lg:0 18px 48px rgba(38,35,43,.16);
+  --maxw:1120px;
   font-size:16px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Figtree',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
-button{font-family:inherit;cursor:pointer;border:none;background:none}
-img{display:block}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Figtree',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  color:var(--ink); background:var(--bg); line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;color:inherit}
+a{color:inherit}
+img,svg{display:block}
+:focus-visible{outline:3px solid var(--wf-purple-200);outline-offset:2px;border-radius:6px}
 
-/* ---------- Wayfair chrome ---------- */
-.topbar{background:#fff;border-bottom:1px solid var(--line)}
-.topbar-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:20px;padding:12px 20px}
-.wordmark{font-weight:800;font-style:italic;font-size:1.5rem;color:var(--wf-purple);letter-spacing:-0.5px;white-space:nowrap}
-.searchbox{flex:1;display:flex;align-items:center;background:#fff;border:2px solid var(--wf-purple);border-radius:999px;overflow:hidden;max-width:560px}
-.searchbox input{flex:1;border:none;outline:none;padding:9px 16px;font-size:.9rem;font-family:inherit;color:var(--ink)}
-.searchbox .go{background:var(--wf-purple);color:#fff;padding:9px 16px;font-weight:700;font-size:.85rem}
-.top-icons{display:flex;gap:18px;align-items:center;color:var(--ink-2);font-size:.78rem;font-weight:600}
-.top-icons .ic{display:flex;flex-direction:column;align-items:center;gap:2px}
-.cartpill{position:relative}
-.cartcount{position:absolute;top:-6px;right:-10px;background:var(--wf-purple);color:#fff;font-size:.65rem;font-weight:800;border-radius:999px;padding:1px 6px;min-width:18px;text-align:center}
-.subnav{background:var(--wf-purple);color:#fff}
-.subnav-in{max-width:1180px;margin:0 auto;display:flex;gap:26px;padding:9px 20px;font-size:.82rem;font-weight:600;overflow-x:auto}
-.subnav-in span{white-space:nowrap;opacity:.92}
-.subnav-in span.active{border-bottom:2px solid var(--wf-yellow);padding-bottom:2px;opacity:1}
+/* ---------- layout helpers ---------- */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.view{display:none}
+.view.active{display:block}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:.72rem;font-weight:800;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--wf-purple);background:var(--wf-purple-tint);
+  padding:6px 12px;border-radius:100px}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--wf-purple)}
 
-/* ---------- layout ---------- */
-.wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
-.crumb{font-size:.78rem;color:var(--ink-3);margin-bottom:14px}
-.crumb b{color:var(--ink-2);font-weight:600}
+/* ---------- top nav ---------- */
+.nav{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.9);backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:18px;height:64px}
+.brand{display:flex;align-items:baseline;gap:2px;font-weight:900;font-size:1.5rem;letter-spacing:-.02em;
+  color:var(--wf-purple);cursor:pointer}
+.brand .dotmark{width:8px;height:8px;border-radius:50%;background:var(--wf-yellow);align-self:center;margin-left:3px}
+.nav-sep{width:1px;height:26px;background:var(--line)}
+.nav-tag{font-size:.78rem;font-weight:700;color:var(--ink-3);letter-spacing:.02em}
+.nav-spacer{flex:1}
+.nav-link{font-size:.9rem;font-weight:600;color:var(--ink-2);padding:8px 6px;border-radius:8px}
+.nav-link:hover{color:var(--wf-purple)}
+.cart-btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.9rem;color:var(--wf-purple);
+  border:1.5px solid var(--wf-purple-200);padding:8px 14px;border-radius:100px;background:#fff;transition:.15s}
+.cart-btn:hover{background:var(--wf-purple-tint)}
+.cart-count{min-width:20px;height:20px;padding:0 6px;border-radius:100px;background:var(--wf-purple);color:#fff;
+  font-size:.72rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
 
-/* ---------- project header ---------- */
-.projhead{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;display:flex;flex-wrap:wrap;gap:18px;align-items:center}
-.projmeta{flex:1;min-width:260px}
-.projtitle{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.projtitle h1{font-size:1.45rem;font-weight:800;letter-spacing:-.3px}
-.roombadge{background:var(--wf-purple-tint);color:var(--wf-purple);font-size:.7rem;font-weight:800;padding:4px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.4px}
-.projsub{font-size:.83rem;color:var(--ink-2);margin-top:5px}
-.members{display:flex;align-items:center}
-.av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;color:#fff;border:2.5px solid #fff;margin-left:-8px}
-.av:first-child{margin-left:0}
-.av.maya{background:#7F187F}.av.rohan{background:#0F5CA8}.av.priya{background:#B3540F}
-.av.add{background:#fff;border:2px dashed var(--wf-purple);color:var(--wf-purple);font-size:1.1rem;cursor:pointer}
-.memlabel{font-size:.72rem;color:var(--ink-3);margin-top:5px;text-align:right}
-.projactions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.btn{border-radius:999px;font-weight:700;font-size:.85rem;padding:10px 20px;transition:background .15s}
-.btn-primary{background:var(--wf-purple);color:#fff}
-.btn-primary:hover{background:var(--wf-purple-dark)}
-.btn-ghost{background:#fff;color:var(--wf-purple);border:2px solid var(--wf-purple)}
-.btn-ghost:hover{background:var(--wf-purple-tint)}
+/* ---------- landing ---------- */
+.hero{padding:56px 0 28px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+.hero h1{font-size:3.15rem;line-height:1.03;letter-spacing:-.03em;font-weight:900;margin:18px 0 16px}
+.hero h1 em{font-style:normal;color:var(--wf-purple)}
+.hero p.lede{font-size:1.16rem;color:var(--ink-2);max-width:30ch;margin-bottom:28px}
+.hero-cta-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-weight:800;font-size:1rem;
+  padding:15px 26px;border-radius:100px;transition:.16s;white-space:nowrap}
+.btn-primary{background:var(--wf-purple);color:#fff;box-shadow:0 8px 20px rgba(127,24,127,.25)}
+.btn-primary:hover{background:var(--wf-purple-dark);transform:translateY(-1px);box-shadow:0 12px 26px rgba(127,24,127,.32)}
+.btn-ghost{color:var(--wf-purple);font-weight:700}
+.btn-ghost:hover{color:var(--wf-purple-dark)}
+.hero-note{margin-top:20px;font-size:.82rem;color:var(--ink-3);display:flex;align-items:center;gap:8px}
 
-/* roadmap toggle + chips */
-.roadmapbar{display:flex;justify-content:space-between;align-items:center;margin:16px 2px 10px;flex-wrap:wrap;gap:8px}
-.rtoggle{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--ink-2);font-weight:600}
-.switch{width:38px;height:21px;border-radius:999px;background:#CFCFCF;position:relative;transition:background .15s}
-.switch.on{background:var(--wf-purple)}
-.switch::after{content:"";position:absolute;width:17px;height:17px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left .15s}
-.switch.on::after{left:19px}
-.qchip{display:none;font-size:.62rem;font-weight:800;padding:2px 8px;border-radius:4px;letter-spacing:.4px;vertical-align:middle}
-body.showroadmap .qchip{display:inline-block}
-.qchip.q1{background:#E9F5EC;color:#1F7A33}
-.qchip.q2{background:#FFF6CC;color:#8A6D00}
-.qchip.qL{background:#EDEDED;color:#6B6B6B}
+/* mood collage */
+.collage{position:relative;aspect-ratio:1/.92;border-radius:var(--r-lg);overflow:hidden;
+  box-shadow:var(--shadow-md);border:1px solid var(--line)}
+.collage .cband{position:absolute;inset:0;background:linear-gradient(135deg,#F3EDE0,#EAD9C4 55%,#E3C9B4)}
+.collage .grid3{position:absolute;inset:14px;display:grid;grid-template-columns:1.3fr 1fr;grid-template-rows:1fr 1fr;gap:12px}
+.ctile{border-radius:14px;overflow:hidden;position:relative;box-shadow:0 4px 12px rgba(38,35,43,.10)}
+.ctile:nth-child(1){grid-row:span 2}
+.badge-float{position:absolute;left:16px;bottom:16px;background:#fff;border-radius:100px;padding:9px 15px 9px 12px;
+  display:flex;align-items:center;gap:9px;box-shadow:var(--shadow-md);font-weight:800;font-size:.86rem}
+.badge-float .chk{width:22px;height:22px;border-radius:50%;background:var(--green);display:grid;place-items:center}
+.budget-float{position:absolute;right:16px;top:16px;background:#fff;border-radius:12px;padding:11px 14px;
+  box-shadow:var(--shadow-md);text-align:right}
+.budget-float .bf-k{font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.budget-float .bf-v{font-size:1.25rem;font-weight:900;color:var(--wf-purple);letter-spacing:-.02em}
 
-/* ---------- tabs ---------- */
-.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-top:6px;overflow-x:auto}
-.tab{padding:11px 18px;font-weight:700;font-size:.9rem;color:var(--ink-2);border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;display:flex;gap:7px;align-items:center}
-.tab.active{color:var(--wf-purple);border-color:var(--wf-purple)}
-.tab .count{background:var(--wf-purple-tint);color:var(--wf-purple);font-size:.68rem;font-weight:800;border-radius:999px;padding:1px 8px}
-.pane{display:none;padding-top:18px}
-.pane.active{display:block}
+/* how it works */
+.how{padding:14px 0 64px}
+.how-head{text-align:center;max-width:640px;margin:0 auto 34px}
+.how-head h2{font-size:1.9rem;font-weight:900;letter-spacing:-.02em;margin:12px 0 8px}
+.how-head p{color:var(--ink-2)}
+.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.step-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:var(--shadow-sm)}
+.step-num{width:34px;height:34px;border-radius:10px;background:var(--wf-purple-tint);color:var(--wf-purple);
+  font-weight:900;display:grid;place-items:center;font-size:.95rem;margin-bottom:14px}
+.step-card h3{font-size:1.08rem;font-weight:800;margin-bottom:6px}
+.step-card p{font-size:.92rem;color:var(--ink-2)}
+.testing-strip{margin-top:34px;background:var(--wf-purple-tint);border:1px solid var(--wf-purple-200);
+  border-radius:var(--r);padding:20px 24px;display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.testing-strip .tk{font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--wf-purple)}
+.testing-strip .ts-items{display:flex;gap:26px;flex-wrap:wrap;flex:1}
+.ts-item b{display:block;font-size:.95rem}
+.ts-item span{font-size:.8rem;color:var(--ink-2)}
 
-/* ---------- idea board ---------- */
-.boardtools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
-.filter{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-size:.78rem;font-weight:600;color:var(--ink-2)}
-.filter.active{border-color:var(--wf-purple);background:var(--wf-purple-tint);color:var(--wf-purple)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s}
-.card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
-.art{height:160px;position:relative}
-.art svg{width:100%;height:100%;display:block}
-.srcbadge{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.94);border-radius:999px;font-size:.66rem;font-weight:800;padding:4px 10px;color:var(--ink-2);display:flex;gap:5px;align-items:center}
-.cbody{padding:12px 14px 10px;flex:1}
-.ctitle{font-weight:700;font-size:.92rem;line-height:1.3}
-.cnote{font-size:.76rem;color:var(--ink-2);margin-top:4px;line-height:1.45}
-.votes{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:.72rem;color:var(--ink-2)}
-.vdot{width:20px;height:20px;border-radius:50%;font-size:.6rem;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center}
-.vdot.m{background:#7F187F}.vdot.r{background:#0F5CA8}
-.vdot.pending{background:#fff;border:1.5px dashed #B9B9B9;color:#B9B9B9}
-.cacts{display:flex;border-top:1px solid var(--line)}
-.cact{flex:1;padding:10px 4px;font-size:.78rem;font-weight:700;color:var(--ink-2);display:flex;gap:6px;align-items:center;justify-content:center}
-.cact:hover{background:#FAFAFA}
-.cact.love.on{color:var(--wf-purple)}
-.cact.pass.on{color:var(--red)}
-.cact + .cact{border-left:1px solid var(--line)}
-.state-strip{font-size:.7rem;font-weight:700;padding:6px 14px;display:flex;gap:6px;align-items:center}
-.state-strip.agree{background:var(--green-tint);color:var(--green)}
-.state-strip.wait{background:#FFF9E0;color:#8A6D00}
-.state-strip.out{background:var(--red-tint);color:var(--red)}
-.addcard{border:2px dashed #C9B3C9;border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:280px;color:var(--wf-purple);font-weight:700;background:transparent}
-.addcard:hover{background:var(--wf-purple-tint)}
-.addcard .plus{width:44px;height:44px;border-radius:50%;background:var(--wf-purple);color:#fff;font-size:1.5rem;display:flex;align-items:center;justify-content:center}
-.sectionlabel{font-size:.78rem;font-weight:800;color:var(--ink-3);text-transform:uppercase;letter-spacing:.6px;margin:26px 2px 10px}
-.passedwrap .card{opacity:.62}
+/* ---------- wizard ---------- */
+.stage{min-height:calc(100vh - 64px);display:flex;align-items:flex-start;justify-content:center;padding:44px 24px 80px}
+.wcard{width:100%;max-width:760px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-md);overflow:hidden}
+.wtop{padding:26px 32px 0}
+.wtop .wmeta{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.wtop .wstep{font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--wf-purple)}
+.wtop .wclose{font-size:.85rem;font-weight:700;color:var(--ink-3)}
+.wtop .wclose:hover{color:var(--ink)}
+.pbar{height:6px;background:var(--line-2);border-radius:100px;overflow:hidden}
+.pbar > i{display:block;height:100%;background:var(--wf-purple);border-radius:100px;transition:width .4s cubic-bezier(.2,.8,.2,1)}
+.wbody{padding:26px 32px 4px}
+.wbody h2{font-size:1.55rem;font-weight:900;letter-spacing:-.02em;margin-bottom:6px}
+.wbody .wsub{color:var(--ink-2);margin-bottom:24px}
+.wfoot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 32px 28px;
+  border-top:1px solid var(--line-2);margin-top:22px}
+.btn-back{font-weight:700;color:var(--ink-2);padding:12px 6px}
+.btn-back:hover{color:var(--ink)}
+.btn-back[hidden]{visibility:hidden}
+.btn-next{background:var(--wf-purple);color:#fff;font-weight:800;padding:13px 30px;border-radius:100px;transition:.16s}
+.btn-next:hover{background:var(--wf-purple-dark)}
+.btn-next:disabled{background:var(--line);color:var(--ink-3);cursor:not-allowed}
 
-/* ---------- shortlist ---------- */
-.slrow{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;grid-template-columns:210px 1fr;gap:18px;margin-bottom:16px}
-.slart{border-radius:8px;overflow:hidden;height:150px}
-.slart svg{width:100%;height:100%}
-.slhead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
-.sltitle{font-weight:800;font-size:1rem}
-.slmeta{font-size:.74rem;color:var(--ink-2);margin-top:3px}
-.matchlabel{font-size:.72rem;font-weight:800;color:var(--wf-purple);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 8px}
-.prodrow{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
-.prod{border:1px solid var(--line);border-radius:10px;min-width:168px;max-width:168px;background:#fff}
-.prodart{height:88px;border-radius:9px 9px 0 0;overflow:hidden}
-.prodart svg{width:100%;height:100%}
-.prodbody{padding:9px 10px 10px}
-.prodname{font-size:.75rem;font-weight:600;line-height:1.3;height:2.6em;overflow:hidden}
-.prodprice{font-weight:800;font-size:.9rem;margin-top:4px}
-.prodadd{margin-top:7px;width:100%;border:1.5px solid var(--wf-purple);color:var(--wf-purple);border-radius:999px;font-size:.72rem;font-weight:800;padding:6px 0}
-.prodadd.added{background:var(--green-tint);border-color:var(--green);color:var(--green)}
-.empty{border:1.5px dashed var(--line);border-radius:var(--r);padding:38px 20px;text-align:center;color:var(--ink-2);font-size:.88rem}
-.empty b{color:var(--ink)}
+/* room tiles */
+.room-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.rtile{border:2px solid var(--line);border-radius:var(--r);overflow:hidden;background:#fff;text-align:left;transition:.16s;position:relative}
+.rtile:hover{border-color:var(--wf-purple-200);transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.rtile.sel{border-color:var(--wf-purple);box-shadow:0 0 0 3px var(--wf-purple-tint)}
+.rtile .rimg{aspect-ratio:4/3}
+.rtile .rlab{padding:12px 14px;font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:space-between}
+.rtile .rcheck{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;transition:.15s}
+.rtile.sel .rcheck{background:var(--wf-purple);border-color:var(--wf-purple)}
+.rtile.sel .rcheck svg{opacity:1}
+.rtile .rcheck svg{opacity:0}
 
-/* ---------- discuss ---------- */
-.discuss{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
-.dlist{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.ditem{padding:13px 15px;border-bottom:1px solid var(--line);cursor:pointer}
-.ditem:last-child{border-bottom:none}
-.ditem.active{background:var(--wf-purple-tint);border-left:3px solid var(--wf-purple);padding-left:12px}
-.ditem .t{font-weight:700;font-size:.85rem}
-.ditem .s{font-size:.72rem;color:var(--ink-2);margin-top:2px}
-.thread{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
-.msg{display:flex;gap:10px;margin-bottom:14px}
-.msg .av{width:32px;height:32px;font-size:.72rem;border:none;margin:0;flex:none}
-.bubble{background:#F4F4F4;border-radius:4px 14px 14px 14px;padding:9px 13px;font-size:.85rem;line-height:1.45;max-width:520px}
-.msg.me{flex-direction:row-reverse}
-.msg.me .bubble{background:var(--wf-purple-tint);border-radius:14px 4px 14px 14px}
-.msgwho{font-size:.68rem;font-weight:800;color:var(--ink-3);margin-bottom:3px}
-.decisionchips{display:flex;gap:8px;margin:6px 0 16px;padding-left:42px;flex-wrap:wrap}
-.dchip{font-size:.74rem;font-weight:800;border-radius:999px;padding:7px 14px;border:1.5px solid var(--line);color:var(--ink-2);background:#fff}
-.dchip.yes{border-color:var(--green);color:var(--green)}
-.dchip.no{border-color:var(--red);color:var(--red)}
-.dchip.done{background:var(--green-tint);border-color:var(--green);color:var(--green)}
-.composer{display:flex;gap:9px;margin-top:6px}
-.composer input{flex:1;border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;font-family:inherit;font-size:.85rem;outline:none}
-.composer input:focus{border-color:var(--wf-purple)}
+/* budget + timeline */
+.field{margin-bottom:26px}
+.field > label{display:block;font-weight:800;font-size:.95rem;margin-bottom:4px}
+.field .hint{font-size:.83rem;color:var(--ink-3);margin-bottom:14px}
+.budget-readout{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.budget-readout .bv{font-size:2.4rem;font-weight:900;color:var(--wf-purple);letter-spacing:-.03em}
+.budget-readout .br{font-size:.9rem;color:var(--ink-2);font-weight:600}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:8px;border-radius:100px;
+  background:var(--line-2);outline-offset:6px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;
+  background:var(--wf-purple);border:4px solid #fff;box-shadow:0 2px 6px rgba(127,24,127,.4);cursor:pointer;margin-top:0}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--wf-purple);
+  border:4px solid #fff;box-shadow:0 2px 6px rgba(127,24,127,.4);cursor:pointer}
+.range-ticks{display:flex;justify-content:space-between;font-size:.76rem;color:var(--ink-3);margin-top:8px;font-weight:600}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.seg button{border:2px solid var(--line);background:#fff;border-radius:var(--r-sm);padding:14px 10px;font-weight:700;
+  font-size:.92rem;transition:.15s;text-align:center;color:var(--ink-2)}
+.seg button small{display:block;font-size:.74rem;color:var(--ink-3);font-weight:600;margin-top:2px}
+.seg button:hover{border-color:var(--wf-purple-200)}
+.seg button.sel{border-color:var(--wf-purple);color:var(--wf-purple);background:var(--wf-purple-tint)}
 
-/* ---------- budget & rooms ---------- */
-.bgrid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
-.panel h3{font-size:1rem;font-weight:800;display:flex;gap:8px;align-items:center}
-.panel .sub{font-size:.78rem;color:var(--ink-2);margin-top:3px}
-.bbar{height:14px;border-radius:999px;background:#EDEDED;overflow:hidden;display:flex;margin:16px 0 8px}
-.bseg{height:100%}
-.blegend{display:flex;gap:16px;flex-wrap:wrap;font-size:.75rem;color:var(--ink-2)}
-.blegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
-.bnum{display:flex;justify-content:space-between;font-size:.8rem;margin-top:12px;color:var(--ink-2)}
-.bnum b{color:var(--ink);font-size:1rem}
-.roomrow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
-.roomrow:last-child{border:none}
-.roomthumb{width:52px;height:40px;border-radius:8px;overflow:hidden;flex:none}
-.roomthumb svg{width:100%;height:100%}
-.roomname{font-weight:700;font-size:.86rem;flex:1}
-.roomstat{font-size:.72rem;color:var(--ink-2)}
-.quiz{background:linear-gradient(120deg,var(--wf-purple) 0%,#A63FA6 100%);color:#fff;border-radius:var(--r);padding:18px;margin-top:16px}
-.quiz h4{font-weight:800;font-size:.95rem}
-.quiz p{font-size:.78rem;opacity:.9;margin-top:4px;line-height:1.5}
-.quiz .btn{background:var(--wf-yellow);color:var(--ink);margin-top:12px;font-size:.78rem;padding:8px 16px}
-.stylechips{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
-.schip{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);border-radius:999px;font-size:.7rem;font-weight:700;padding:4px 11px}
+/* style cards */
+.style-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:6px}
+.scard{border:2px solid var(--line);border-radius:var(--r);overflow:hidden;background:#fff;text-align:left;transition:.15s;position:relative}
+.scard:hover{border-color:var(--wf-purple-200)}
+.scard.sel{border-color:var(--wf-purple);box-shadow:0 0 0 3px var(--wf-purple-tint)}
+.scard .sw{height:56px}
+.scard .sn{padding:9px 12px;font-weight:800;font-size:.9rem}
+.scard.sel .sn{color:var(--wf-purple)}
+textarea,input[type=text]{width:100%;border:2px solid var(--line);border-radius:var(--r-sm);padding:13px 15px;
+  font-size:.95rem;transition:.15s;background:#fff}
+textarea:focus,input[type=text]:focus{border-color:var(--wf-purple);outline:none}
+textarea{resize:vertical;min-height:84px}
+.input-icon{position:relative}
+.input-icon svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+.input-icon input{padding-left:42px}
+.chip-suggest{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip-suggest button{font-size:.8rem;font-weight:600;color:var(--ink-2);border:1px solid var(--line);
+  background:#fff;padding:6px 12px;border-radius:100px;transition:.14s}
+.chip-suggest button:hover{border-color:var(--wf-purple-200);color:var(--wf-purple)}
+
+/* ---------- generating ---------- */
+.gen-wrap{text-align:center;padding:10px 0 8px}
+.gen-orb{width:64px;height:64px;margin:6px auto 20px;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--wf-purple),var(--wf-purple-200),var(--wf-yellow),var(--wf-purple));
+  animation:spin 1.4s linear infinite;position:relative}
+.gen-orb::after{content:"";position:absolute;inset:8px;border-radius:50%;background:#fff}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gen-wrap h2{font-size:1.5rem;font-weight:900;margin-bottom:6px}
+.gen-status{color:var(--ink-2);min-height:1.5em;font-weight:600}
+.sk-plan{margin-top:26px;text-align:left}
+.sk-hero{height:120px;border-radius:var(--r);margin-bottom:18px}
+.sk-row{display:flex;gap:14px;margin-bottom:14px}
+.sk-thumb{width:96px;height:96px;border-radius:12px;flex:none}
+.sk-lines{flex:1;display:flex;flex-direction:column;gap:9px;justify-content:center}
+.sk-line{height:12px;border-radius:6px}
+.shimmer{background:linear-gradient(100deg,#EFEAF2 30%,#F8F4FA 50%,#EFEAF2 70%);
+  background-size:200% 100%;animation:sh 1.3s ease-in-out infinite}
+@keyframes sh{to{background-position:-200% 0}}
+
+/* ---------- plan ---------- */
+.plan-hero{position:relative;border-radius:var(--r-lg);overflow:hidden;margin:26px 0 24px;
+  border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.plan-hero .ph-band{position:absolute;inset:0}
+.plan-hero .ph-inner{position:relative;padding:34px 34px;display:flex;justify-content:space-between;
+  align-items:flex-end;gap:24px;min-height:172px}
+.ph-l .ph-eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:.72rem;font-weight:800;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--wf-purple-dark);background:rgba(255,255,255,.75);padding:6px 12px;border-radius:100px}
+.ph-l h1{font-size:2.25rem;font-weight:900;letter-spacing:-.03em;margin:14px 0 8px;color:#2b2130}
+.ph-chips{display:flex;gap:8px;flex-wrap:wrap}
+.ph-chip{background:rgba(255,255,255,.82);border-radius:100px;padding:6px 13px;font-size:.82rem;font-weight:700;color:#3a2f40}
+.ph-r{display:flex;gap:10px}
+.plan-grid{display:grid;grid-template-columns:1fr 320px;gap:28px;align-items:start;padding-bottom:70px}
+.sec{margin-bottom:30px}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.sec-head h2{font-size:1.35rem;font-weight:900;letter-spacing:-.02em}
+.tag{font-size:.72rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:5px 11px;border-radius:100px}
+.tag-now{background:var(--green-tint);color:var(--green)}
+.tag-later{background:var(--wf-purple-tint);color:var(--wf-purple)}
+.sec-sub{color:var(--ink-2);font-size:.92rem;margin-bottom:16px}
+.sec-sub b{color:var(--ink)}
+
+.pcard{display:flex;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:14px;box-shadow:var(--shadow-sm);margin-bottom:14px;transition:.18s;position:relative}
+.pcard.locked{border-color:var(--wf-purple-200);box-shadow:0 0 0 2px var(--wf-purple-tint)}
+.pcard.removing{opacity:0;transform:translateX(24px)}
+.pc-thumb{width:112px;height:112px;border-radius:12px;flex:none;overflow:hidden;position:relative}
+.pc-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.pc-cat{font-size:.72rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+.pc-name{font-weight:800;font-size:1.02rem;line-height:1.25;margin:2px 0 4px}
+.pc-price{font-weight:900;font-size:1.15rem;color:var(--wf-purple);letter-spacing:-.02em}
+.pc-price .was{font-size:.82rem;font-weight:600;color:var(--ink-3);text-decoration:line-through;margin-left:8px}
+.pc-actions{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:10px;flex-wrap:wrap}
+.mini{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:.84rem;padding:8px 13px;
+  border-radius:100px;border:1.5px solid var(--line);background:#fff;transition:.14s;color:var(--ink-2)}
+.mini:hover{border-color:var(--wf-purple-200);color:var(--wf-purple)}
+.mini.primary{background:var(--wf-purple);color:#fff;border-color:var(--wf-purple)}
+.mini.primary:hover{background:var(--wf-purple-dark)}
+.mini.added{background:var(--green-tint);color:var(--green);border-color:var(--green-tint)}
+.icon-btn{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line);
+  background:#fff;color:var(--ink-3);transition:.14s}
+.icon-btn:hover{border-color:var(--wf-purple-200);color:var(--wf-purple)}
+.icon-btn.on{background:var(--wf-purple);border-color:var(--wf-purple);color:#fff}
+.lock-flag{position:absolute;top:-8px;left:-8px;background:var(--wf-purple);color:#fff;border-radius:100px;
+  font-size:.66rem;font-weight:800;letter-spacing:.04em;padding:3px 9px;display:none;box-shadow:var(--shadow-sm)}
+.pcard.locked .lock-flag{display:block}
+
+/* budget card */
+.budget-card{position:sticky;top:88px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-md);overflow:hidden}
+.bc-head{padding:18px 20px 14px;border-bottom:1px solid var(--line-2)}
+.bc-head .bt{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.bc-head .bg-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:3px}
+.bc-head .bg-total{font-size:1.9rem;font-weight:900;letter-spacing:-.03em}
+.bc-head .bg-budget{font-size:.86rem;font-weight:600;color:var(--ink-2)}
+.bc-bar{height:10px;background:var(--line-2);border-radius:100px;overflow:hidden;margin-top:14px}
+.bc-bar > i{display:block;height:100%;border-radius:100px;transition:width .5s cubic-bezier(.2,.8,.2,1),background .3s}
+.bc-status{margin-top:10px;font-size:.82rem;font-weight:700;display:flex;align-items:center;gap:7px}
+.bc-status.ok{color:var(--green)} .bc-status.warn{color:var(--amber)} .bc-status.over{color:var(--red)}
+.bc-body{padding:16px 20px}
+.bc-line{display:flex;justify-content:space-between;align-items:center;padding:9px 0;font-size:.92rem}
+.bc-line + .bc-line{border-top:1px solid var(--line-2)}
+.bc-line .k{color:var(--ink-2);display:flex;align-items:center;gap:8px}
+.bc-line .k .sw{width:10px;height:10px;border-radius:3px}
+.bc-line .v{font-weight:800}
+.bc-line.remain .v{color:var(--green)} .bc-line.remain.neg .v{color:var(--red)}
+.bc-foot{padding:0 20px 20px;display:flex;flex-direction:column;gap:10px}
+.bc-cta{background:var(--wf-purple);color:#fff;font-weight:800;padding:14px;border-radius:100px;font-size:.95rem;transition:.16s}
+.bc-cta:hover{background:var(--wf-purple-dark)}
+.bc-cta.ghost{background:#fff;color:var(--wf-purple);border:1.5px solid var(--wf-purple-200)}
+.bc-cta.ghost:hover{background:var(--wf-purple-tint)}
+.bc-meta{font-size:.76rem;color:var(--ink-3);text-align:center;line-height:1.5}
+
+/* ---------- slide-over (swap + cart) ---------- */
+.scrim{position:fixed;inset:0;background:rgba(38,35,43,.42);opacity:0;pointer-events:none;transition:.25s;z-index:60}
+.scrim.show{opacity:1;pointer-events:auto}
+.sheet{position:fixed;top:0;right:0;height:100%;width:420px;max-width:92vw;background:#fff;z-index:70;
+  transform:translateX(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;
+  box-shadow:var(--shadow-lg)}
+.sheet.show{transform:translateX(0)}
+.sheet-head{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start}
+.sheet-head h3{font-size:1.15rem;font-weight:900}
+.sheet-head p{font-size:.85rem;color:var(--ink-2);margin-top:2px}
+.sheet-close{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--line-2);color:var(--ink-2);flex:none}
+.sheet-close:hover{background:var(--line)}
+.sheet-body{flex:1;overflow-y:auto;padding:16px 22px}
+.alt{display:flex;gap:14px;align-items:center;border:2px solid var(--line);border-radius:var(--r);padding:12px;
+  margin-bottom:12px;cursor:pointer;transition:.15s;background:#fff;width:100%;text-align:left}
+.alt:hover{border-color:var(--wf-purple-200)}
+.alt.current{border-color:var(--wf-purple);background:var(--wf-purple-tint)}
+.alt .a-thumb{width:72px;height:72px;border-radius:10px;flex:none;overflow:hidden}
+.alt .a-main{flex:1;min-width:0}
+.alt .a-name{font-weight:800;font-size:.94rem;line-height:1.25}
+.alt .a-price{font-weight:900;color:var(--wf-purple);margin-top:3px}
+.alt .a-cur{font-size:.72rem;font-weight:800;color:var(--wf-purple);text-transform:uppercase;letter-spacing:.05em}
+.alt .a-delta{font-size:.78rem;font-weight:700;margin-top:2px}
+.alt .a-delta.up{color:var(--red)} .alt .a-delta.down{color:var(--green)}
+
+/* cart */
+.cart-item{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line-2)}
+.cart-item .ci-thumb{width:56px;height:56px;border-radius:9px;flex:none;overflow:hidden}
+.cart-item .ci-name{font-weight:700;font-size:.9rem;flex:1}
+.cart-item .ci-price{font-weight:800;color:var(--wf-purple)}
+.cart-empty{text-align:center;color:var(--ink-3);padding:50px 20px;font-weight:600}
+.sheet-foot{border-top:1px solid var(--line);padding:18px 22px}
+.sheet-foot .cf-row{display:flex;justify-content:space-between;font-size:1.05rem;margin-bottom:14px}
+.sheet-foot .cf-row b{font-weight:900}
 
 /* ---------- toast ---------- */
-.toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;border-radius:999px;padding:11px 22px;font-size:.84rem;font-weight:600;opacity:0;transition:all .3s;z-index:200;pointer-events:none;max-width:90vw;text-align:center}
-.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast-wrap{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:10px;align-items:center}
+.toast{background:var(--ink);color:#fff;padding:13px 20px;border-radius:100px;font-weight:700;font-size:.9rem;
+  box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(12px);
+  transition:.3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast .tchk{width:20px;height:20px;border-radius:50%;background:var(--green);display:grid;place-items:center;flex:none}
 
-/* ---------- modal ---------- */
-.overlay{position:fixed;inset:0;background:rgba(30,20,30,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
-.overlay.open{display:flex}
-.modal{background:#fff;border-radius:16px;width:520px;max-width:100%;max-height:88vh;overflow:auto;padding:26px 26px 22px;position:relative}
-.mclose{position:absolute;top:14px;right:16px;font-size:1.2rem;color:var(--ink-3);width:32px;height:32px;border-radius:50%}
-.mclose:hover{background:#F0F0F0}
-.modal h2{font-size:1.2rem;font-weight:800;letter-spacing:-.2px;padding-right:30px}
-.modal .msub{font-size:.82rem;color:var(--ink-2);margin-top:5px;line-height:1.5}
-.srcopt{display:flex;gap:13px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:14px;margin-top:11px;width:100%;text-align:left}
-.srcopt:hover{border-color:var(--wf-purple);background:var(--wf-purple-tint)}
-.srcicon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex:none;color:#fff;font-weight:800}
-.srcicon.ig{background:linear-gradient(45deg,#F58529,#DD2A7B,#8134AF)}
-.srcicon.cr{background:#B3540F}
-.srcicon.up{background:#0F5CA8}
-.srcicon.wf{background:var(--wf-purple)}
-.srcopt .t{font-weight:800;font-size:.9rem}
-.srcopt .d{font-size:.75rem;color:var(--ink-2);margin-top:2px;line-height:1.4}
-.steps{display:flex;gap:6px;margin:14px 0 4px}
-.stepdot{flex:1;height:4px;border-radius:99px;background:#E5E5E5}
-.stepdot.on{background:var(--wf-purple)}
-.consentbox{background:#FAF7FA;border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:14px}
-.consentbox .row{display:flex;gap:10px;align-items:flex-start;padding:8px 0;font-size:.82rem;line-height:1.45}
-.consentbox .row .tick{color:var(--green);font-weight:800;flex:none}
-.consentbox .row .cross{color:var(--red);font-weight:800;flex:none}
-.finelabel{font-size:.7rem;color:var(--ink-3);margin-top:10px;line-height:1.5}
-.pickgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}
-.pick{border:2px solid var(--line);border-radius:10px;overflow:hidden;position:relative;cursor:pointer;background:#fff;padding:0}
-.pick svg{width:100%;height:78px;display:block}
-.pick .pl{font-size:.68rem;font-weight:700;padding:6px 8px;display:block;text-align:left;color:var(--ink-2)}
-.pick.sel{border-color:var(--wf-purple)}
-.pick .chk{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:var(--wf-purple);color:#fff;font-size:.7rem;display:none;align-items:center;justify-content:center;font-weight:800}
-.pick.sel .chk{display:flex}
-.mfoot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
-.creatorcard{border:1.5px solid var(--line);border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center;margin-top:12px}
-.creatorcard .av{margin:0;border:none;width:44px;height:44px}
-.creatorcard .cn{font-weight:800;font-size:.9rem}
-.creatorcard .cd{font-size:.74rem;color:var(--ink-2);margin-top:2px}
-.followbtn{margin-left:auto;border:1.5px solid var(--wf-purple);color:var(--wf-purple);border-radius:999px;font-weight:800;font-size:.75rem;padding:7px 14px;flex:none}
-.followbtn.done{background:var(--wf-purple-tint)}
-.field{margin-top:14px}
-.field label{display:block;font-size:.76rem;font-weight:800;color:var(--ink-2);margin-bottom:6px}
-.field input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;font-family:inherit;font-size:.86rem;outline:none}
-.field input:focus{border-color:var(--wf-purple)}
-.roleopt{display:flex;gap:11px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:12px;margin-top:9px;cursor:pointer}
-.roleopt.sel{border-color:var(--wf-purple);background:var(--wf-purple-tint)}
-.roleopt .rt{font-weight:800;font-size:.85rem}
-.roleopt .rd{font-size:.73rem;color:var(--ink-2);margin-top:2px;line-height:1.4}
-.radio{width:18px;height:18px;border-radius:50%;border:2px solid #BDBDBD;flex:none;margin-top:2px}
-.roleopt.sel .radio{border-color:var(--wf-purple);background:radial-gradient(circle at center,var(--wf-purple) 0 5px,#fff 6px)}
+/* footer */
+.foot{border-top:1px solid var(--line);padding:26px 0;color:var(--ink-3);font-size:.82rem}
+.foot .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+.foot b{color:var(--ink-2)}
 
-/* footer note */
-.casefoot{margin-top:34px;border-top:1px solid var(--line);padding-top:14px;font-size:.72rem;color:var(--ink-3);line-height:1.6}
-
-@media (max-width:820px){
-  .discuss{grid-template-columns:1fr}
-  .bgrid{grid-template-columns:1fr}
-  .slrow{grid-template-columns:1fr}
-  .slart{height:130px}
-  .top-icons .lbl{display:none}
+/* ---------- responsive ---------- */
+@media(max-width:920px){
+  .hero-grid{grid-template-columns:1fr;gap:34px}
+  .hero{padding:36px 0 20px}
+  .hero h1{font-size:2.5rem}
+  .plan-grid{grid-template-columns:1fr}
+  .budget-card{position:static;order:-1}
+  .steps3{grid-template-columns:1fr}
 }
+@media(max-width:640px){
+  .wrap{padding:0 16px}
+  .hero h1{font-size:2.05rem}
+  .room-tiles,.style-grid{grid-template-columns:1fr 1fr}
+  .seg{grid-template-columns:1fr}
+  .wbody,.wtop,.wfoot{padding-left:20px;padding-right:20px}
+  .plan-hero .ph-inner{flex-direction:column;align-items:flex-start;padding:24px 22px}
+  .ph-r{width:100%}
+  .pc-thumb{width:88px;height:88px}
+  .testing-strip{flex-direction:column;align-items:flex-start}
+  .nav-tag,.nav-sep{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.05ms!important}}
 </style>
 </head>
-<body class="showroadmap">
+<body>
 
-<!-- ======= Wayfair chrome ======= -->
-<div class="topbar"><div class="topbar-in">
-  <div class="wordmark">Wayfair</div>
-  <div class="searchbox"><input placeholder="Find anything home…"><button class="go">Search</button></div>
-  <div class="top-icons">
-    <div class="ic"><span>👤</span><span class="lbl">Account</span></div>
-    <div class="ic"><span>📁</span><span class="lbl" style="color:var(--wf-purple)">Projects</span></div>
-    <div class="ic cartpill"><span>🛒</span><span class="lbl">Cart</span><span class="cartcount" id="cartcount">0</span></div>
+<!-- ============ NAV ============ -->
+<header class="nav">
+  <div class="wrap">
+    <div class="brand" onclick="goHome()">wayfair<span class="dotmark"></span></div>
+    <div class="nav-sep"></div>
+    <div class="nav-tag">My&nbsp;Room,&nbsp;Planned</div>
+    <div class="nav-spacer"></div>
+    <a class="nav-link" href="#how" onclick="goHome()">How it works</a>
+    <button class="cart-btn" onclick="openCart()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      Cart <span class="cart-count" id="cartCount">0</span>
+    </button>
   </div>
-</div></div>
-<div class="subnav"><div class="subnav-in">
-  <span>Furniture</span><span>Outdoor</span><span>Bedding &amp; Bath</span><span>Rugs</span><span>Décor &amp; Pillows</span><span>Lighting</span><span>Organization</span><span class="active">My Projects</span><span>Sale</span>
-</div></div>
+</header>
 
-<div class="wrap">
-  <div class="crumb">My Projects &rsaquo; <b>Our First Living Room</b></div>
-
-  <!-- ======= Project header ======= -->
-  <div class="projhead">
-    <div class="projmeta">
-      <div class="projtitle">
-        <h1>Our First Living Room</h1>
-        <span class="roombadge">Living room · 2BHK</span>
-        <span class="qchip q1">Q1 · Create project</span>
-      </div>
-      <div class="projsub">Started 12 June · Target: ready before Thanksgiving · Style profile: <b>Warm Modern</b> <span class="qchip q1">Q1 · Style quiz</span></div>
-    </div>
-    <div>
-      <div class="members" id="memberrow">
-        <div class="av maya" title="Maya (you)">M</div>
-        <div class="av rohan" title="Rohan">R</div>
-        <button class="av add" onclick="openModal('invite')" title="Add household member or professional">+</button>
-      </div>
-      <div class="memlabel">Maya (you) · Rohan <span class="qchip q1">Q1 · Add family member</span></div>
-    </div>
-    <div class="projactions">
-      <button class="btn btn-primary" onclick="openModal('addsrc')">+ Add inspiration</button>
-      <button class="btn btn-ghost" onclick="openModal('invite')">Invite</button>
-    </div>
-  </div>
-
-  <div class="roadmapbar">
-    <div style="font-size:.8rem;color:var(--ink-2)">You're viewing as <b style="color:var(--wf-purple)">Maya</b>. Rohan reviewed ideas last night — 3 are waiting on your vote.</div>
-    <div class="rtoggle">Show roadmap labels
-      <div class="switch on" id="rswitch" onclick="toggleRoadmap()"></div>
-    </div>
-  </div>
-
-  <!-- ======= Tabs ======= -->
-  <div class="tabs">
-    <button class="tab active" data-pane="ideas" onclick="showPane('ideas')">Ideas <span class="count" id="ideacount">6</span></button>
-    <button class="tab" data-pane="shortlist" onclick="showPane('shortlist')">Shortlist <span class="count" id="slcount">1</span></button>
-    <button class="tab" data-pane="discuss" onclick="showPane('discuss')">Discuss <span class="count" id="dcount">2</span></button>
-    <button class="tab" data-pane="budget" onclick="showPane('budget')">Budget &amp; Rooms <span class="qchip q2" style="display:inline-block">Q2 · Budget</span></button>
-  </div>
-
-  <!-- ======= IDEAS ======= -->
-  <div class="pane active" id="pane-ideas">
-    <div class="boardtools">
-      <button class="filter active" data-f="all" onclick="setFilter('all')">All ideas</button>
-      <button class="filter" data-f="instagram" onclick="setFilter('instagram')">From Instagram <span class="qchip qL">Later</span></button>
-      <button class="filter" data-f="creator" onclick="setFilter('creator')">From creators <span class="qchip qL">Later</span></button>
-      <button class="filter" data-f="upload" onclick="setFilter('upload')">Screenshots <span class="qchip q2">Q2</span></button>
-      <button class="filter" data-f="wayfair" onclick="setFilter('wayfair')">Saved from Wayfair <span class="qchip q1">Q1</span></button>
-    </div>
-    <div class="grid" id="ideagrid"></div>
-    <div class="sectionlabel">Passed on <span style="font-weight:600;text-transform:none;letter-spacing:0">— kept for 30 days in case you change your mind</span></div>
-    <div class="grid passedwrap" id="passedgrid"></div>
-  </div>
-
-  <!-- ======= SHORTLIST ======= -->
-  <div class="pane" id="pane-shortlist">
-    <div style="font-size:.82rem;color:var(--ink-2);margin-bottom:14px">Ideas you <b>both</b> shortlisted, matched to items you can buy today. Adding a match to cart keeps it tied to this project. <span class="qchip q1">Q1 · Add product from Wayfair</span></div>
-    <div id="sllist"></div>
-  </div>
-
-  <!-- ======= DISCUSS ======= -->
-  <div class="pane" id="pane-discuss">
-    <div class="discuss">
-      <div class="dlist" id="dlist"></div>
-      <div class="thread">
-        <div id="threadhead" style="font-weight:800;margin-bottom:12px"></div>
-        <div id="threadmsgs"></div>
-        <div class="composer">
-          <input id="composeinput" placeholder="Reply to Rohan…" onkeydown="if(event.key==='Enter')sendMsg()">
-          <button class="btn btn-primary" style="padding:9px 18px" onclick="sendMsg()">Send</button>
+<!-- ============ LANDING ============ -->
+<section class="view active" id="view-landing">
+  <div class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-l">
+        <span class="eyebrow"><span class="dot"></span>Done-for-you room planning</span>
+        <h1>Stop browsing.<br>Get a <em>budget-fit</em><br>room plan.</h1>
+        <p class="lede">Tell us the room, your budget, and your style. We hand you a complete, shoppable plan — what to buy now, what to defer for later.</p>
+        <div class="hero-cta-row">
+          <button class="btn btn-primary" onclick="startIntake()">
+            Help me furnish my room
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <button class="btn btn-ghost" onclick="loadSamplePlan()">See a sample plan</button>
         </div>
+        <div class="hero-note">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          Every plan fits your budget — with a clear phase 1 / phase 2 split.
+        </div>
+      </div>
+      <div class="hero-r">
+        <div class="collage" id="heroCollage"></div>
       </div>
     </div>
   </div>
 
-  <!-- ======= BUDGET & ROOMS ======= -->
-  <div class="pane" id="pane-budget">
-    <div class="bgrid">
-      <div class="panel">
-        <h3>Project budget <span class="qchip q2">Q2 · Add a budget</span></h3>
-        <div class="sub">Set together with Rohan on 14 June. Hero pieces first, accents phased over 3 months.</div>
-        <div class="bbar">
-          <div class="bseg" style="width:31%;background:var(--wf-purple)"></div>
-          <div class="bseg" style="width:11%;background:#C77DC7"></div>
+  <div class="how" id="how">
+    <div class="wrap">
+      <div class="how-head">
+        <span class="eyebrow"><span class="dot"></span>How it works</span>
+        <h2>From "modern boho" to a shoppable plan in three steps</h2>
+        <p>No endless scrolling. No guessing whether things go together or blow the budget.</p>
+      </div>
+      <div class="steps3">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h3>Share your brief</h3>
+          <p>Room, budget, timeline, style, and anything you already own — like an existing gray sofa.</p>
         </div>
-        <div class="blegend">
-          <span><i style="background:var(--wf-purple)"></i>Spent — $3,680</span>
-          <span><i style="background:#C77DC7"></i>In cart — $1,320</span>
-          <span><i style="background:#EDEDED"></i>Remaining — $7,000</span>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h3>Get a budget-fit plan</h3>
+          <p>A cohesive room — hero pieces to buy now, accents to phase in later — that lands inside your number.</p>
         </div>
-        <div class="bnum"><span>Total budget</span><b>$12,000</b></div>
-        <div class="bnum"><span>Phase 1 · Hero pieces (sofa, rug, coffee table)</span><b>$5,000</b></div>
-        <div class="bnum"><span>Phase 2 · Lighting &amp; accents (Aug–Sep)</span><b>$4,000</b></div>
-        <div class="quiz">
-          <h4>Your household style profile</h4>
-          <p>Built from your style quiz + saved ideas. One profile, two people: Maya leans texture and mood, Rohan checks dimensions and budget. Recommendations balance both.</p>
-          <div class="stylechips"><span class="schip">Warm Modern</span><span class="schip">Walnut + bouclé</span><span class="schip">Low-profile</span><span class="schip">Fits 3.6m wall</span></div>
-          <button class="btn" onclick="toast('Style quiz opens — 8 quick this-or-that picks (Q1)')">Retake style quiz</button>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h3>Tweak, then shop</h3>
+          <p>Swap what you don't love, lock what you do, and add the buy-now pieces to your cart.</p>
         </div>
       </div>
-      <div class="panel">
-        <h3>Rooms in this project <span class="qchip q1">Q1 · Save room</span></h3>
-        <div class="sub">Saved dimensions apply to every idea and product match — fit warnings show automatically.</div>
-        <div class="roomrow">
-          <div class="roomthumb"><svg viewBox="0 0 52 40"><rect width="52" height="40" fill="#EFE6DA"/><rect x="6" y="22" width="24" height="10" rx="2" fill="#8A6A4F"/><rect x="36" y="14" width="9" height="18" rx="1" fill="#C9B39A"/></svg></div>
-          <div><div class="roomname">Living room</div><div class="roomstat">3.6m × 4.2m · sofa wall 3.6m · 14 ideas</div></div>
-          <div class="roomstat" style="color:var(--green);font-weight:700">Active</div>
-        </div>
-        <div class="roomrow">
-          <div class="roomthumb"><svg viewBox="0 0 52 40"><rect width="52" height="40" fill="#E3E9EF"/><rect x="8" y="18" width="28" height="14" rx="2" fill="#5E7A96"/></svg></div>
-          <div><div class="roomname">Bedroom</div><div class="roomstat">3.0m × 3.4m · 2 ideas</div></div>
-          <div class="roomstat">Planned · Phase 3</div>
-        </div>
-        <div class="roomrow">
-          <div class="roomthumb"><svg viewBox="0 0 52 40"><rect width="52" height="40" fill="#EAEFE3"/><rect x="10" y="20" width="18" height="12" rx="2" fill="#7E9464"/></svg></div>
-          <div><div class="roomname">Balcony</div><div class="roomstat">Not measured yet</div></div>
-          <button class="roomstat" style="color:var(--wf-purple);font-weight:700" onclick="toast('Room measurement flow — enter dimensions or scan with phone camera')">+ Measure</button>
-        </div>
-        <div style="margin-top:14px">
-          <button class="btn btn-ghost" style="width:100%" onclick="toast('Spatial planner opens with your saved room dimensions (memo feature 4)')">Open spatial planner</button>
+
+      <div class="testing-strip">
+        <div class="tk">Q1 fake-door test · what we're learning</div>
+        <div class="ts-items">
+          <div class="ts-item"><b>Intake completion</b><span>Do people finish the brief? · goal &gt;60%</span></div>
+          <div class="ts-item"><b>Plan acceptance</b><span>Kept vs. swapped hero pieces · goal &gt;50%</span></div>
+          <div class="ts-item"><b>Project-to-cart</b><span>Plans that reach the cart · goal &gt;20%</span></div>
         </div>
       </div>
     </div>
   </div>
+</section>
 
-  <div class="casefoot">
-    <b>Case artifact — Workstream 2: Live Project Workspace.</b> Prototype maps to memo features 1–5: household &amp; professional collaboration (invite flow), consented social import from creators (Instagram + creator flows, Later), media upload (Q2 screenshots), budget + spatial + project tools in one workspace (Budget &amp; Rooms tab), designer sharing (invite roles). Success metrics instrumented in this flow: projects with ≥2 collaborators, inspiration-to-cart time (idea → shortlist → matched product → cart), project-to-cart conversion, Project AOV.
-  </div>
-</div>
-
-<!-- ======= Modals ======= -->
-<div class="overlay" id="ov">
-  <!-- Add inspiration source picker -->
-  <div class="modal" id="m-addsrc" style="display:none">
-    <button class="mclose" onclick="closeModal()">✕</button>
-    <h2>Add inspiration</h2>
-    <div class="msub">Everything lands on the shared board, so Rohan sees it too.</div>
-    <button class="srcopt" onclick="openModal('instagram')"><div class="srcicon ig">IG</div><div><div class="t">Connect Instagram <span class="qchip qL">Later</span></div><div class="d">Import your saved posts and the creators you follow — with your consent, nothing else.</div></div></button>
-    <button class="srcopt" onclick="openModal('creator')"><div class="srcicon cr">✦</div><div><div class="t">From a creator <span class="qchip qL">Later</span></div><div class="d">Follow a creator's Wayfair profile and pull their shoppable room edits.</div></div></button>
-    <button class="srcopt" onclick="uploadFlow()"><div class="srcicon up">⬆</div><div><div class="t">Upload a screenshot <span class="qchip q2">Q2</span></div><div class="d">Pinterest, WhatsApp, anywhere — we'll match items in it to things you can buy.</div></div></button>
-    <button class="srcopt" onclick="toast('Browse Wayfair — every product page now has Save to project (Q1)');closeModal()"><div class="srcicon wf">W</div><div><div class="t">Save from Wayfair <span class="qchip q1">Q1</span></div><div class="d">Browse the catalog and save products straight into this project.</div></div></button>
-  </div>
-
-  <!-- Instagram consent flow -->
-  <div class="modal" id="m-instagram" style="display:none">
-    <button class="mclose" onclick="closeModal()">✕</button>
-    <div id="igstep1">
-      <h2>Connect Instagram</h2>
-      <div class="steps"><div class="stepdot on"></div><div class="stepdot"></div><div class="stepdot"></div></div>
-      <div class="msub">Step 1 of 3 — what Wayfair can and can't see. You stay in control and can disconnect anytime from Account settings.</div>
-      <div class="consentbox">
-        <div class="row"><span class="tick">✓</span><span><b>Posts you've saved</b> — so your inspiration lives in one place</span></div>
-        <div class="row"><span class="tick">✓</span><span><b>Home &amp; décor creators you follow</b> — to suggest shoppable edits</span></div>
-        <div class="row"><span class="cross">✕</span><span>Your DMs, comments, followers, or anything you post</span></div>
-        <div class="row"><span class="cross">✕</span><span>Nothing is shared back to Instagram, ever</span></div>
+<!-- ============ INTAKE WIZARD ============ -->
+<section class="view" id="view-intake">
+  <div class="stage">
+    <div class="wcard">
+      <div class="wtop">
+        <div class="wmeta">
+          <span class="wstep" id="wStepLabel">Step 1 of 3</span>
+          <button class="wclose" onclick="goHome()">Cancel</button>
+        </div>
+        <div class="pbar"><i id="wProgress" style="width:33%"></i></div>
       </div>
-      <div class="finelabel">This import also improves your household style profile. Rohan will see imported ideas on the shared board, marked with your name. You can keep any import private before adding it.</div>
-      <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">Not now</button><button class="btn btn-primary" onclick="igNext(2)">Agree &amp; continue</button></div>
-    </div>
-    <div id="igstep2" style="display:none">
-      <h2>Choose what to import</h2>
-      <div class="steps"><div class="stepdot on"></div><div class="stepdot on"></div><div class="stepdot"></div></div>
-      <div class="msub">Step 2 of 3 — we found 2 saved collections and 3 home creators you follow. Pick what's relevant to this project.</div>
-      <div class="pickgrid" id="igpicks"></div>
-      <div class="mfoot"><button class="btn btn-ghost" onclick="igNext(1)">Back</button><button class="btn btn-primary" onclick="igNext(3)">Import selected</button></div>
-    </div>
-    <div id="igstep3" style="display:none">
-      <h2>Imported to your board</h2>
-      <div class="steps"><div class="stepdot on"></div><div class="stepdot on"></div><div class="stepdot on"></div></div>
-      <div class="msub">Step 3 of 3 — 2 ideas added to <b>Our First Living Room</b>, tagged "From Instagram". We matched furniture in the images to 6 similar Wayfair items — see them once you and Rohan shortlist.</div>
-      <div class="consentbox" style="margin-top:14px">
-        <div class="row"><span class="tick">✓</span><span>Imports refresh weekly. Manage or disconnect under <b>Account → Connected apps</b>.</span></div>
+      <div class="wbody" id="wBody"><!-- injected --></div>
+      <div class="wfoot">
+        <button class="btn-back" id="wBack" onclick="wizBack()" hidden>← Back</button>
+        <button class="btn-next" id="wNext" onclick="wizNext()">Continue</button>
       </div>
-      <div class="mfoot"><button class="btn btn-primary" onclick="finishIg()">Done</button></div>
     </div>
   </div>
+</section>
 
-  <!-- Creator flow -->
-  <div class="modal" id="m-creator" style="display:none">
-    <button class="mclose" onclick="closeModal()">✕</button>
-    <h2>Import from a creator</h2>
-    <div class="msub">Creators you follow can publish shoppable room edits on Wayfair. Import an edit and every item in it is already matched to the catalog.</div>
-    <div class="field"><label>Search creators</label><input value="@urbannest.diaries" readonly></div>
-    <div class="creatorcard">
-      <div class="av" style="background:#B3540F">U</div>
-      <div><div class="cn">Urban Nest Diaries <span style="color:var(--wf-purple);font-size:.7rem;font-weight:800">· Wayfair Creator</span></div><div class="cd">412K followers · Small-space warm modern · 8 shoppable edits</div></div>
-      <button class="followbtn" id="followbtn" onclick="this.textContent='Following ✓';this.classList.add('done')">Follow</button>
+<!-- ============ GENERATING ============ -->
+<section class="view" id="view-generating">
+  <div class="stage">
+    <div class="wcard" style="max-width:640px">
+      <div class="wbody" style="padding:34px 32px">
+        <div class="gen-wrap">
+          <div class="gen-orb"></div>
+          <h2>Building your plan…</h2>
+          <div class="gen-status" id="genStatus">Reading your brief</div>
+        </div>
+        <div class="sk-plan">
+          <div class="sk-hero shimmer"></div>
+          <div class="sk-row"><div class="sk-thumb shimmer"></div><div class="sk-lines"><div class="sk-line shimmer" style="width:70%"></div><div class="sk-line shimmer" style="width:40%"></div><div class="sk-line shimmer" style="width:55%"></div></div></div>
+          <div class="sk-row"><div class="sk-thumb shimmer"></div><div class="sk-lines"><div class="sk-line shimmer" style="width:60%"></div><div class="sk-line shimmer" style="width:45%"></div><div class="sk-line shimmer" style="width:50%"></div></div></div>
+          <div class="sk-row"><div class="sk-thumb shimmer"></div><div class="sk-lines"><div class="sk-line shimmer" style="width:65%"></div><div class="sk-line shimmer" style="width:38%"></div><div class="sk-line shimmer" style="width:52%"></div></div></div>
+        </div>
+      </div>
     </div>
-    <div class="creatorcard" style="border-color:var(--wf-purple);background:var(--wf-purple-tint)">
-      <div style="width:44px;height:44px;border-radius:10px;overflow:hidden;flex:none"><svg viewBox="0 0 44 44"><rect width="44" height="44" fill="#E8D9C5"/><rect x="6" y="24" width="22" height="10" rx="2" fill="#9A6A3F"/><circle cx="35" cy="14" r="5" fill="#D9B98F"/></svg></div>
-      <div><div class="cn">"3.6m wall, warm modern" edit</div><div class="cd">Sofa + rug + arc lamp + art wall · 9 items · fits your saved living room</div></div>
-      <button class="followbtn" onclick="importCreator()">Import edit</button>
+  </div>
+</section>
+
+<!-- ============ PLAN ============ -->
+<section class="view" id="view-plan">
+  <div class="wrap">
+    <div class="plan-hero" id="planHero"></div>
+    <div class="plan-grid">
+      <div class="plan-main" id="planMain"><!-- sections injected --></div>
+      <aside class="budget-card" id="budgetCard"><!-- injected --></aside>
     </div>
-    <div class="finelabel">You're importing the creator's public edit — no access to your Instagram account is needed for this. Creators earn a commission if you buy from their edit; prices don't change for you.</div>
   </div>
+  <footer class="foot">
+    <div class="wrap">
+      <div><b>My Room, Planned</b> — Workstream 2 prototype. Product case artifact; not affiliated with Wayfair.</div>
+      <div>Manual concierge behind a real-looking flow · Q1 fake-door</div>
+    </div>
+  </footer>
+</section>
 
-  <!-- Invite flow -->
-  <div class="modal" id="m-invite" style="display:none">
-    <button class="mclose" onclick="closeModal()">✕</button>
-    <h2>Invite to this project</h2>
-    <div class="msub">Collaborators see the board, vote on ideas, and comment — the discussion that used to live in WhatsApp stays with the project.</div>
-    <div class="field"><label>Email or phone</label><input id="invemail" placeholder="priya@studioverde.com"></div>
-    <label style="display:block" class="field"><span style="display:block;font-size:.76rem;font-weight:800;color:var(--ink-2);margin-bottom:2px">Their role</span></label>
-    <div class="roleopt sel" onclick="pickRole(this,'household')"><div class="radio"></div><div><div class="rt">Household member</div><div class="rd">Full partner — votes count toward shortlisting, can edit budget and rooms. Their saves and quiz answers join the shared style profile.</div></div></div>
-    <div class="roleopt" onclick="pickRole(this,'designer')"><div class="radio"></div><div><div class="rt">Design professional <span class="qchip q1" style="display:inline-block">Q1</span></div><div class="rd">Your independent designer — can add ideas, comment, and propose product matches. Can't see your budget breakdown unless you share it.</div></div></div>
-    <div class="roleopt" onclick="pickRole(this,'viewer')"><div class="radio"></div><div><div class="rt">Viewer</div><div class="rd">Parents, friends — can see and comment, can't vote or edit.</div></div></div>
-    <div class="finelabel">Invites expire in 7 days. You can change or remove anyone's access from project settings.</div>
-    <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="sendInvite()">Send invite</button></div>
+<!-- ============ SLIDE-OVERS ============ -->
+<div class="scrim" id="scrim" onclick="closeSheets()"></div>
+
+<aside class="sheet" id="swapSheet">
+  <div class="sheet-head">
+    <div><h3>Swap this piece</h3><p id="swapSub">Curated alternatives that keep the look.</p></div>
+    <button class="sheet-close" onclick="closeSheets()" aria-label="Close">✕</button>
   </div>
-</div>
+  <div class="sheet-body" id="swapBody"></div>
+</aside>
 
-<div class="toast" id="toast"></div>
+<aside class="sheet" id="cartSheet">
+  <div class="sheet-head">
+    <div><h3>Your cart</h3><p id="cartSub">Buy-now pieces, ready to check out.</p></div>
+    <button class="sheet-close" onclick="closeSheets()" aria-label="Close">✕</button>
+  </div>
+  <div class="sheet-body" id="cartBody"></div>
+  <div class="sheet-foot" id="cartFoot" hidden>
+    <div class="cf-row"><span>Subtotal</span><b id="cartTotal">$0</b></div>
+    <button class="bc-cta" style="width:100%" onclick="toast('Checkout is stubbed for the prototype')">Checkout</button>
+  </div>
+</aside>
+
+<div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-/* ---------------- data ---------------- */
-/* Simple SVG scene generator so cards feel like room photos without external images */
-function art(seed){
-  const palettes = [
-    ['#EFE4D4','#8A6A4F','#C9B39A','#5C4632'],
-    ['#E9E2D8','#9A6A3F','#D9B98F','#3F4A3C'],
-    ['#EDE7DE','#77604B','#CBB79B','#8C4A2F'],
-    ['#E7E2DA','#556052','#C4B49A','#2F3A34'],
-    ['#F0E8DC','#8A5A3F','#D8C3A5','#4A3A5F'],
-    ['#EAE4DB','#6B5A4A','#CFC0A8','#7F187F']
-  ];
-  const p = palettes[seed % palettes.length];
-  const lampX = 40 + (seed*37)%160;
-  return `<svg viewBox="0 0 260 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-    <rect width="260" height="160" fill="${p[0]}"/>
-    <rect y="118" width="260" height="42" fill="${p[2]}" opacity=".55"/>
-    <rect x="26" y="82" width="118" height="34" rx="8" fill="${p[1]}"/>
-    <rect x="26" y="70" width="118" height="18" rx="8" fill="${p[1]}" opacity=".8"/>
-    <rect x="30" y="116" width="8" height="10" fill="${p[3]}"/><rect x="132" y="116" width="8" height="10" fill="${p[3]}"/>
-    <rect x="168" y="60" width="52" height="66" rx="3" fill="${p[3]}" opacity=".85"/>
-    <rect x="176" y="68" width="36" height="22" rx="2" fill="${p[0]}" opacity=".7"/>
-    <circle cx="${lampX}" cy="34" r="12" fill="${p[3]}" opacity=".9"/>
-    <line x1="${lampX}" y1="0" x2="${lampX}" y2="24" stroke="${p[3]}" stroke-width="3"/>
-    <ellipse cx="86" cy="132" rx="52" ry="8" fill="${p[3]}" opacity=".25"/>
+/* ============================================================
+   My Room, Planned — WS2 prototype
+   Static, self-contained. Manual "budget-fit" data simulates the
+   engine that Q2 will replace with the customer graph.
+   ============================================================ */
+
+/* ---------- inline SVG art (guaranteed to render, no external images) ---------- */
+const TILES = {
+  sage:{g:['#E9EFE6','#D6E2D0'],ink:'#4B5D48'},
+  clay:{g:['#F1E6DD','#E7D3C6'],ink:'#7C5A46'},
+  dusk:{g:['#E6E9F1','#D4DAEC'],ink:'#495271'},
+  blush:{g:['#F4E8EC','#EBD4DC'],ink:'#7C4B5B'},
+  sand:{g:['#F3EDE0','#EADEC5'],ink:'#7C6B48'},
+  mist:{g:['#E6EFF1','#D4E6EC'],ink:'#476870'}
+};
+const ICON = {
+  rug:'<rect x="3" y="6" width="18" height="12" rx="1.5"/><path d="M3 9h18M3 15h18M7 6v12M17 6v12" opacity=".5"/><path d="M3 6l-1 -1.5M21 6l1 -1.5M3 18l-1 1.5M21 18l1 1.5"/>',
+  coffeeTable:'<rect x="4" y="9" width="16" height="4" rx="1"/><path d="M6 13v5M18 13v5M8 15h8"/>',
+  chair:'<path d="M7 3v9M17 3v9M7 12h10M8 12l-1 8M16 12l1 8"/><path d="M7 8h10" opacity=".6"/>',
+  console:'<rect x="3" y="7" width="18" height="10" rx="1"/><path d="M12 7v10M6 17v3M18 17v3M6 12h1M17 12h1" /><path d="M8 11h2M14 11h2" opacity=".5"/>',
+  floorLamp:'<path d="M9 4h6l2 6H7z"/><path d="M12 10v9M8 20h8"/>',
+  tableLamp:'<path d="M9 4h6l1.5 5h-9z"/><path d="M12 9v6M8 19h8M10 15h4l1 4h-6z"/>',
+  pillow:'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M7 7c1 1 1 3 0 4M17 7c-1 1-1 3 0 4" opacity=".5"/>',
+  art:'<rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 16l4-4 3 3 4-5 5 6" /><circle cx="9" cy="9" r="1.3"/>',
+  plant:'<path d="M9 21h6l-1-7h-4z"/><path d="M12 14c0-3-2-5-5-5 0 3 2 5 5 5zM12 14c0-4 2-6 5-6 0 4-2 6-5 6z"/>',
+  blanket:'<path d="M4 8h16M4 12h16M4 16h16" /><rect x="4" y="6" width="16" height="12" rx="2" opacity=".35"/>',
+  mirror:'<ellipse cx="12" cy="11" rx="6" ry="8"/><path d="M9 21h6" /><path d="M9 7c0 2 0 4 1 5" opacity=".5"/>',
+  bed:'<path d="M3 12v7M21 12v7M3 16h18M3 12h18v4M6 12V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/>',
+  nightstand:'<rect x="6" y="6" width="12" height="12" rx="1"/><path d="M6 12h12M9 9h6M9 15h6M8 18v2M16 18v2" opacity=".7"/>',
+  dresser:'<rect x="5" y="4" width="14" height="16" rx="1"/><path d="M5 9h14M5 14h14M10 6.5h4M10 11.5h4M10 16.5h4M6 20v1M18 20v1" opacity=".8"/>',
+  diningTable:'<rect x="3" y="8" width="18" height="3" rx="1"/><path d="M5 11v9M19 11v9"/>',
+  diningChair:'<path d="M7 3v9M17 3v9M7 12h10M8 12l-1 8M16 12l1 8"/>',
+  bench:'<rect x="4" y="9" width="16" height="4" rx="1.5"/><path d="M6 13v6M18 13v6"/>',
+  bookcase:'<rect x="5" y="3" width="14" height="18" rx="1"/><path d="M5 9h14M5 15h14"/>'
+};
+function art(cat,tileKey,r){
+  const t=TILES[tileKey]||TILES.sand;
+  return `<svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="g${cat}${tileKey}${r}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${t.g[0]}"/><stop offset="1" stop-color="${t.g[1]}"/></linearGradient></defs>
+    <rect width="100" height="100" fill="url(#g${cat}${tileKey}${r})"/>
+    <g transform="translate(50,50) scale(2.3) translate(-12,-12)" fill="none" stroke="${t.ink}" stroke-width="1.4"
+       stroke-linecap="round" stroke-linejoin="round" opacity=".92">${ICON[cat]||ICON.pillow}</g>
   </svg>`;
 }
-function prodArt(seed){
-  const c=['#8A6A4F','#556052','#9A6A3F','#5E7A96','#7F187F','#8C4A2F'][seed%6];
-  return `<svg viewBox="0 0 168 88" preserveAspectRatio="xMidYMid slice"><rect width="168" height="88" fill="#F3EFE9"/><rect x="34" y="34" width="100" height="30" rx="7" fill="${c}"/><rect x="34" y="24" width="100" height="16" rx="7" fill="${c}" opacity=".8"/><rect x="38" y="64" width="7" height="9" fill="#4A3A2A"/><rect x="123" y="64" width="7" height="9" fill="#4A3A2A"/></svg>`;
-}
 
-const SRC = {
-  instagram:{label:'From Instagram', icon:'📷', chip:'qL'},
-  creator:{label:'Creator edit', icon:'✦', chip:'qL'},
-  upload:{label:'Screenshot', icon:'⬆', chip:'q2'},
-  wayfair:{label:'Saved from Wayfair', icon:'W', chip:'q1'}
+/* ---------- data ---------- */
+const ROOMS = [
+  {id:'living', label:'Living Room', hero:'chair', tile:'clay'},
+  {id:'bedroom',label:'Bedroom',     hero:'bed',   tile:'dusk'},
+  {id:'dining', label:'Dining Room', hero:'diningTable', tile:'sand'}
+];
+const STYLES = [
+  {id:'boho',       label:'Modern Boho',        g:['#F1E6DA','#E4C9AF']},
+  {id:'coastal',    label:'Coastal',            g:['#E6F0F1','#CDE1E6']},
+  {id:'midcentury', label:'Mid-Century',        g:['#EFE7D2','#DAC79E']},
+  {id:'minimal',    label:'Scandi Minimal',     g:['#EEEFF1','#DBDDE2']},
+  {id:'traditional',label:'Modern Traditional', g:['#EFE6E1','#DCC7BC']},
+  {id:'industrial', label:'Industrial',         g:['#E8E9EB','#CFD2D7']}
+];
+const TIMELINES = [
+  {id:'now',   label:'Immediate', sub:'Buy it all now'},
+  {id:'1m',    label:'1 month',   sub:'Phase over weeks'},
+  {id:'3m',    label:'3 months',  sub:'Spread the spend'}
+];
+const alt=(name,price)=>({name,price});
+const CATALOG = {
+  living:{
+    hero:[
+      {id:'l1',cat:'rug',        catLabel:'Area rug',    name:'Hand-Woven Wool Area Rug, 8×10', price:349, tile:'clay',
+        alts:[alt('Vintage Medallion Rug, 8×10',329),alt('Flatweave Jute Rug, 8×10',279),alt('Tufted Geometric Rug, 8×10',399)]},
+      {id:'l2',cat:'coffeeTable',catLabel:'Coffee table',name:'Round Mango-Wood Coffee Table',   price:279, tile:'sand',
+        alts:[alt('Rattan Drum Coffee Table',249),alt('Marble-Top Coffee Table',349),alt('Oval Nesting Tables, set of 2',299)]},
+      {id:'l3',cat:'chair',      catLabel:'Accent chair',name:'Cane-Back Lounge Chair',          price:449, tile:'sage',
+        alts:[alt('Bouclé Barrel Chair',499),alt('Rattan Papasan Chair',329),alt('Velvet Wingback Chair',529)]},
+      {id:'l4',cat:'console',    catLabel:'Media console',name:'Fluted-Wood Media Console, 60"',  price:529, tile:'dusk',
+        alts:[alt('Rattan-Door TV Stand, 58"',449),alt('Oak & Black Metal Console',579),alt('Arched 2-Door Cabinet',499)]},
+      {id:'l5',cat:'floorLamp',  catLabel:'Floor lamp',  name:'Arc Floor Lamp, Brass',           price:189, tile:'mist',
+        alts:[alt('Tripod Wood Floor Lamp',159),alt('Rattan Drum Floor Lamp',139),alt('Globe Task Floor Lamp',179)]}
+    ],
+    accent:[
+      {id:'l6',cat:'pillow',   catLabel:'Throw pillows',name:'Boho Throw Pillows, set of 4', price:89, tile:'blush',
+        alts:[alt('Mud-cloth Pillow Set of 2',59),alt('Velvet Lumbar Pillow Set',79)]},
+      {id:'l7',cat:'art',      catLabel:'Wall art',     name:'Framed Abstract Prints, set of 3', price:139, tile:'clay',
+        alts:[alt('Woven Wall Hanging',99),alt('Arched Canvas Diptych',149)]},
+      {id:'l8',cat:'tableLamp',catLabel:'Table lamp',   name:'Ceramic Table Lamp',           price:99, tile:'sand',
+        alts:[alt('Rattan Table Lamp',79),alt('Marble & Brass Lamp',129)]},
+      {id:'l9',cat:'plant',    catLabel:'Greenery',     name:'Faux Fiddle-Leaf + Basket',    price:69, tile:'sage',
+        alts:[alt('Ceramic Planter Trio',49),alt('Woven Seagrass Planter',39)]},
+      {id:'l10',cat:'blanket', catLabel:'Throw',        name:'Chunky-Knit Throw Blanket',    price:59, tile:'mist',
+        alts:[alt('Fringed Cotton Throw',39),alt('Faux-Mohair Throw',69)]}
+    ]
+  },
+  bedroom:{
+    hero:[
+      {id:'b1',cat:'bed',       catLabel:'Bed',        name:'Upholstered Platform Bed, Queen', price:599, tile:'dusk',
+        alts:[alt('Cane Headboard Bed, Queen',649),alt('Wood Spindle Bed, Queen',549),alt('Bouclé Wingback Bed, Queen',749)]},
+      {id:'b2',cat:'nightstand',catLabel:'Nightstands',name:'2-Drawer Nightstands, pair',     price:329, tile:'sand',
+        alts:[alt('Rattan Nightstands, pair',289),alt('Fluted-Wood Nightstands, pair',359)]},
+      {id:'b3',cat:'dresser',   catLabel:'Dresser',    name:'6-Drawer Wide Dresser',          price:549, tile:'clay',
+        alts:[alt('Rattan-Front Dresser',599),alt('Mid-Century 6-Drawer Dresser',579)]},
+      {id:'b4',cat:'rug',       catLabel:'Area rug',   name:'Soft Shag Area Rug, 8×10',       price:299, tile:'sage',
+        alts:[alt('Washable Vintage Rug, 8×10',279),alt('Wool Loop Rug, 8×10',349)]},
+      {id:'b5',cat:'bench',     catLabel:'Bed bench',  name:'Upholstered Storage Bench',      price:199, tile:'mist',
+        alts:[alt('Woven Cane Bench',179),alt('Tufted Velvet Bench',229)]}
+    ],
+    accent:[
+      {id:'b6',cat:'blanket',  catLabel:'Bedding',    name:'Linen Duvet Set, Queen',         price:149, tile:'blush',
+        alts:[alt('Cotton Waffle Duvet Set',119),alt('Velvet Quilt Set',169)]},
+      {id:'b7',cat:'tableLamp',catLabel:'Table lamps',name:'Ceramic Table Lamps, pair',      price:129, tile:'sand',
+        alts:[alt('Rattan Table Lamps, pair',99),alt('Glass-Base Lamps, pair',149)]},
+      {id:'b8',cat:'mirror',   catLabel:'Mirror',     name:'Arched Floor Mirror',            price:179, tile:'dusk',
+        alts:[alt('Round Rattan Mirror',129),alt('Full-Length Wood Mirror',159)]},
+      {id:'b9',cat:'art',      catLabel:'Wall art',   name:'Framed Botanical Prints, set of 2',price:99, tile:'clay',
+        alts:[alt('Woven Wall Hanging',89),alt('Abstract Canvas',119)]},
+      {id:'b10',cat:'blanket', catLabel:'Curtains',   name:'Linen Blackout Curtains, pair',  price:79, tile:'mist',
+        alts:[alt('Cotton Sheer Curtains, pair',49),alt('Velvet Curtains, pair',99)]}
+    ]
+  },
+  dining:{
+    hero:[
+      {id:'d1',cat:'diningTable',catLabel:'Dining table',name:'Round Extendable Dining Table',   price:549, tile:'sand',
+        alts:[alt('Live-Edge Wood Table',699),alt('Pedestal Marble Table',649),alt('Oval Oak Table',579)]},
+      {id:'d2',cat:'diningChair',catLabel:'Dining chairs',name:'Woven Cane Dining Chairs, set of 4',price:479, tile:'sage',
+        alts:[alt('Upholstered Chairs, set of 4',529),alt('Wishbone Chairs, set of 4',459)]},
+      {id:'d3',cat:'console',    catLabel:'Sideboard',   name:'Fluted 3-Door Sideboard',        price:529, tile:'clay',
+        alts:[alt('Rattan-Door Buffet',479),alt('Mid-Century Credenza',579)]},
+      {id:'d4',cat:'rug',        catLabel:'Area rug',    name:'Flatweave Indoor Rug, 8×10',     price:249, tile:'dusk',
+        alts:[alt('Jute-Blend Rug, 8×10',219),alt('Washable Vintage Rug, 8×10',279)]},
+      {id:'d5',cat:'floorLamp',  catLabel:'Lighting',    name:'Woven Rattan Pendant Light',     price:159, tile:'mist',
+        alts:[alt('Linear Wood Chandelier',229),alt('Brass Sputnik Pendant',189)]}
+    ],
+    accent:[
+      {id:'d6',cat:'bench',   catLabel:'Dining bench', name:'Upholstered Dining Bench',       price:189, tile:'blush',
+        alts:[alt('Wood-Slat Bench',149),alt('Woven Cane Bench',199)]},
+      {id:'d7',cat:'pillow',  catLabel:'Tableware',    name:'16-Piece Stoneware Set',         price:89, tile:'sand',
+        alts:[alt('12-Piece Ceramic Set',69),alt('Handmade Dinner Set',129)]},
+      {id:'d8',cat:'art',     catLabel:'Wall art',     name:'Framed Gallery Set of 3',        price:119, tile:'clay',
+        alts:[alt('Large Statement Canvas',139),alt('Woven Wall Art',99)]},
+      {id:'d9',cat:'plant',   catLabel:'Centerpiece',  name:'Ceramic Vase + Faux Stems',      price:59, tile:'sage',
+        alts:[alt('Wood Bowl + Filler',39),alt('Brass Candle Trio',49)]},
+      {id:'d10',cat:'blanket',catLabel:'Table linens', name:'Linen Runner + Napkins',         price:49, tile:'mist',
+        alts:[alt('Cotton Runner Set',35),alt('Block-Print Runner Set',59)]}
+    ]
+  }
 };
 
-let ideas = [
-  {id:1, title:'Bouclé 3-seater against the long wall', note:'Maya saved from Wayfair · fits your 3.6m wall', src:'wayfair', maya:'love', rohan:'love', state:'shortlist', seed:0,
-   products:[{n:'Mercer41 Bouclé 3-Seater Sofa, Ivory',p:'$899',s:0},{n:'Sand & Stable Walnut Coffee Table',p:'$249',s:1},{n:'Kelly Clarkson Home Jute Rug 8×10',p:'$179',s:2}],
-   thread:[{who:'rohan',t:'Measured the wall again — 3.6m exactly. This fits with 20cm to spare on each side.'},{who:'maya',t:'And the bouclé won\'t fight with the walnut TV unit. Shortlisting.'}]},
-  {id:2, title:'Warm arc lamp corner from @urbannest.diaries', note:'Imported from creator edit · 9 shoppable items', src:'creator', maya:null, rohan:'love', state:'open', seed:1,
-   products:[{n:'George Oliver Arc Floor Lamp, Brass',p:'$139',s:3},{n:'Wade Logan Side Table, Cane',p:'$99',s:4}],
-   thread:[{who:'rohan',t:'This lamp is the vibe. Also it\'s within the Phase-2 accents budget.'}]},
-  {id:3, title:'Gallery wall over the sofa', note:'Screenshot Maya uploaded from Pinterest', src:'upload', maya:null, rohan:'love', state:'open', seed:2,
-   products:[{n:'17 Stories Frame Set of 6, Oak',p:'$79',s:5}],
-   thread:[{who:'rohan',t:'Nice but let\'s decide the sofa first, frames depend on its height?'}]},
-  {id:4, title:'Dark green accent wall + rattan', note:'From Instagram · your saved collection "LR ideas"', src:'instagram', maya:null, rohan:'pass', state:'open', seed:3,
-   products:[], thread:[{who:'rohan',t:'Too dark for a north-facing room I think. Passing, but see what you feel.'}]},
-  {id:5, title:'Low walnut TV console, wall-mounted', note:'Maya saved from Wayfair', src:'wayfair', maya:'love', rohan:null, state:'open', seed:4,
-   products:[{n:'Foundstone Floating TV Unit 180cm, Walnut',p:'$379',s:0}], thread:[]},
-  {id:6, title:'Cane bar cart for the corner', note:'From Instagram · creator you follow reshared', src:'instagram', maya:null, rohan:null, state:'open', seed:5,
-   products:[{n:'Bay Isle Cane Bar Cart',p:'$129',s:2}], thread:[]},
-  {id:7, title:'Terrazzo side tables (pair)', note:'Screenshot from WhatsApp — Rohan\'s sister sent it', src:'upload', maya:'pass', rohan:'pass', state:'passed', seed:2,
-   products:[], thread:[{who:'maya',t:'Cute but it clashes with warm modern. Pass?'},{who:'rohan',t:'Agree, pass.'}]}
-];
-let filter='all', activeThread=1, cart=0;
+/* ---------- state ---------- */
+const S = {
+  step:1,
+  room:'living',
+  budget:3000,
+  timeline:'1m',
+  style:'boho',
+  inspiration:'',
+  notes:'',
+  plan:{hero:[],accent:[]},
+  cart:[],
+  swapTarget:null
+};
+const money = n => '$'+Math.round(n).toLocaleString('en-US');
+const roomLabel = id => (ROOMS.find(r=>r.id===id)||{}).label||'';
+const styleLabel = id => (STYLES.find(s=>s.id===id)||{}).label||'';
+const $ = s => document.querySelector(s);
 
-/* ---------------- render: ideas ---------------- */
-function voteRow(i){
-  const md = i.maya==='love'?'<div class="vdot m" title="Maya shortlisted">M</div>': i.maya==='pass'?'<div class="vdot m" style="background:#B3261E" title="Maya passed">M</div>':'<div class="vdot pending" title="Waiting on Maya">M</div>';
-  const rd = i.rohan==='love'?'<div class="vdot r" title="Rohan shortlisted">R</div>': i.rohan==='pass'?'<div class="vdot r" style="background:#B3261E" title="Rohan passed">R</div>':'<div class="vdot pending" title="Waiting on Rohan">R</div>';
-  let txt='No votes yet';
-  if(i.rohan==='love'&&!i.maya) txt='Rohan shortlisted — your call';
-  else if(i.rohan==='pass'&&!i.maya) txt='Rohan passed — your call';
-  else if(i.maya&&!i.rohan) txt='Waiting on Rohan';
-  else if(i.maya&&i.rohan) txt='Both voted';
-  return `<div class="votes">${md}${rd}<span>${txt}</span></div>`;
+/* ---------- view routing ---------- */
+function show(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  $('#'+id).classList.add('active');
+  window.scrollTo({top:0,behavior:'instant' in window?'instant':'auto'});
 }
-function strip(i){
-  if(i.state==='shortlist') return '<div class="state-strip agree">✓ Shortlisted by both — see product matches in Shortlist</div>';
-  if(i.state==='passed') return '<div class="state-strip out">Passed</div>';
-  if(i.rohan&&!i.maya) return '<div class="state-strip wait">Needs your vote</div>';
-  return '';
+function goHome(){ show('view-landing'); }
+
+/* ---------- landing collage ---------- */
+function buildCollage(){
+  const cats=['chair','coffeeTable','floorLamp','rug'];
+  const tk =['sage','sand','mist','clay'];
+  $('#heroCollage').innerHTML = `
+    <div class="cband"></div>
+    <div class="grid3">
+      ${cats.map((c,i)=>`<div class="ctile">${art(c,tk[i],'h'+i)}</div>`).join('')}
+    </div>
+    <div class="badge-float"><span class="chk"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>Fits your budget</div>
+    <div class="budget-float"><div class="bf-k">Plan total</div><div class="bf-v">$2,250</div></div>`;
 }
-function cardHTML(i){
-  const s=SRC[i.src];
-  return `<div class="card" data-src="${i.src}">
-    ${strip(i)}
-    <div class="art">${art(i.seed)}<div class="srcbadge">${s.icon} ${s.label} <span class="qchip ${s.chip}">${s.chip==='q1'?'Q1':s.chip==='q2'?'Q2':'Later'}</span></div></div>
-    <div class="cbody"><div class="ctitle">${i.title}</div><div class="cnote">${i.note}</div>${voteRow(i)}</div>
-    <div class="cacts">
-      <button class="cact love ${i.maya==='love'?'on':''}" onclick="vote(${i.id},'love')">♥ Shortlist</button>
-      <button class="cact pass ${i.maya==='pass'?'on':''}" onclick="vote(${i.id},'pass')">✕ Pass</button>
-      <button class="cact" onclick="goDiscuss(${i.id})">💬 ${i.thread.length||''} Discuss</button>
+
+/* ============================================================
+   WIZARD
+   ============================================================ */
+function startIntake(){ S.step=1; show('view-intake'); renderWizard(); }
+
+function renderWizard(){
+  $('#wStepLabel').textContent = `Step ${S.step} of 3`;
+  $('#wProgress').style.width = (S.step/3*100)+'%';
+  $('#wBack').hidden = S.step===1;
+  const next=$('#wNext');
+  next.textContent = S.step===3 ? 'Generate my plan' : 'Continue';
+  const b=$('#wBody');
+
+  if(S.step===1){
+    b.innerHTML = `
+      <h2>Which room are we planning?</h2>
+      <p class="wsub">Pick the space you want a complete plan for.</p>
+      <div class="room-tiles">
+        ${ROOMS.map(r=>`
+          <button class="rtile ${S.room===r.id?'sel':''}" onclick="pickRoom('${r.id}')">
+            <div class="rimg">${art(r.hero,r.tile,'rm'+r.id)}</div>
+            <div class="rlab">${r.label}
+              <span class="rcheck"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            </div>
+          </button>`).join('')}
+      </div>`;
+  }
+
+  if(S.step===2){
+    b.innerHTML = `
+      <h2>What's your budget and timeline?</h2>
+      <p class="wsub">We'll keep the whole plan inside this number.</p>
+      <div class="field">
+        <label for="budgetRange">Total project budget</label>
+        <div class="budget-readout"><span class="bv" id="budgetVal">${money(S.budget)}</span><span class="br">for the full room</span></div>
+        <input type="range" id="budgetRange" min="500" max="8000" step="100" value="${S.budget}" oninput="onBudget(this.value)">
+        <div class="range-ticks"><span>$500</span><span>$4,000</span><span>$8,000+</span></div>
+      </div>
+      <div class="field">
+        <label>Timeline</label>
+        <div class="hint">How fast do you want to buy? This shapes the phase 1 / phase 2 split.</div>
+        <div class="seg">
+          ${TIMELINES.map(t=>`<button class="${S.timeline===t.id?'sel':''}" onclick="pickTimeline('${t.id}')">${t.label}<small>${t.sub}</small></button>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  if(S.step===3){
+    b.innerHTML = `
+      <h2>What's your style — and what stays?</h2>
+      <p class="wsub">Pick a vibe, drop any inspiration, and tell us what you already own.</p>
+      <div class="field">
+        <label>Style</label>
+        <div class="style-grid">
+          ${STYLES.map(s=>`
+            <button class="scard ${S.style===s.id?'sel':''}" onclick="pickStyle('${s.id}')">
+              <div class="sw" style="background:linear-gradient(120deg,${s.g[0]},${s.g[1]})"></div>
+              <div class="sn">${s.label}</div>
+            </button>`).join('')}
+        </div>
+      </div>
+      <div class="field">
+        <label for="inspInput">Inspiration <span style="font-weight:600;color:var(--ink-3)">(optional)</span></label>
+        <div class="hint">Paste a Pinterest link or describe the vibe. Creator &amp; social import lands in a later phase.</div>
+        <div class="input-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <input type="text" id="inspInput" placeholder="Paste a Pinterest link or describe your vibe…" value="${escapeHtml(S.inspiration)}" oninput="S.inspiration=this.value">
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:8px">
+        <label for="notesInput">What do you already have? <span style="font-weight:600;color:var(--ink-3)">(optional)</span></label>
+        <div class="hint">We'll plan around it and skip anything you don't need.</div>
+        <textarea id="notesInput" placeholder="e.g. I already have a gray sofa and want to keep my bookshelf." oninput="S.notes=this.value">${escapeHtml(S.notes)}</textarea>
+        <div class="chip-suggest">
+          <button onclick="addNote('I already have a gray sofa')">I have a gray sofa</button>
+          <button onclick="addNote('Keep it pet-friendly')">Pet-friendly</button>
+          <button onclick="addNote('Small space')">Small space</button>
+        </div>
+      </div>`;
+  }
+  syncNext();
+}
+function escapeHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function pickRoom(id){S.room=id;renderWizard();}
+function pickTimeline(id){S.timeline=id;renderWizard();}
+function pickStyle(id){S.style=id;renderWizard();}
+function onBudget(v){S.budget=+v;$('#budgetVal').textContent=money(S.budget);}
+function addNote(t){ S.notes = S.notes ? (S.notes.replace(/\s*$/,'')+'. '+t) : t; renderWizard(); const n=$('#notesInput'); if(n){n.focus();} }
+function syncNext(){ $('#wNext').disabled = false; } // all steps have valid defaults
+function wizBack(){ if(S.step>1){S.step--;renderWizard();} }
+function wizNext(){ if(S.step<3){S.step++;renderWizard();} else runGenerate(); }
+
+/* ============================================================
+   GENERATE (skeleton loader → plan)
+   ============================================================ */
+const GEN_MSGS=[
+  'Reading your brief',
+  'Matching your style and constraints',
+  'Balancing hero pieces to your budget',
+  'Phasing buy-now vs. buy-later',
+  'Finishing your room'
+];
+function runGenerate(){
+  buildPlanData();
+  show('view-generating');
+  let i=0; $('#genStatus').textContent=GEN_MSGS[0];
+  const iv=setInterval(()=>{
+    i++;
+    if(i<GEN_MSGS.length){ $('#genStatus').textContent=GEN_MSGS[i]; }
+    else { clearInterval(iv); renderPlan(); show('view-plan'); }
+  }, 620);
+}
+
+/* deep copy catalog into working plan */
+function buildPlanData(){
+  const c = CATALOG[S.room];
+  const clone = arr => arr.map(it=>({
+    ...it, alts: it.alts.map(a=>({...a})), locked:false, removed:false, added:false
+  }));
+  S.plan.hero   = clone(c.hero);
+  S.plan.accent = clone(c.accent);
+}
+
+/* ============================================================
+   PLAN RENDER
+   ============================================================ */
+function loadSamplePlan(){
+  S.room='living'; S.budget=3000; S.timeline='1m'; S.style='boho';
+  S.notes='I already have a gray sofa'; S.inspiration='';
+  buildPlanData(); renderPlan(); show('view-plan');
+}
+
+function calc(){
+  const sum = arr => arr.filter(i=>!i.removed).reduce((t,i)=>t+i.price,0);
+  const now = sum(S.plan.hero), later = sum(S.plan.accent);
+  return {now, later, total:now+later, remaining:S.budget-(now+later)};
+}
+
+function renderPlan(){
+  renderPlanHero();
+  renderSections();
+  renderBudget();
+}
+
+function renderPlanHero(){
+  const st = STYLES.find(s=>s.id===S.style)||STYLES[0];
+  const chips = [
+    styleLabel(S.style),
+    money(S.budget)+' budget',
+    (TIMELINES.find(t=>t.id===S.timeline)||{}).label+' timeline'
+  ];
+  const noteChip = S.notes ? `<span class="ph-chip">↺ Working around: ${escapeHtml(S.notes.length>46?S.notes.slice(0,46)+'…':S.notes)}</span>` : '';
+  $('#planHero').innerHTML = `
+    <div class="ph-band" style="background:linear-gradient(115deg,${st.g[0]},${st.g[1]})"></div>
+    <div class="ph-inner">
+      <div class="ph-l">
+        <span class="ph-eyebrow">✦ Your budget-fit plan</span>
+        <h1>Your ${styleLabel(S.style)} ${roomLabel(S.room)}</h1>
+        <div class="ph-chips">
+          ${chips.map(c=>`<span class="ph-chip">${c}</span>`).join('')}
+          ${noteChip}
+        </div>
+      </div>
+      <div class="ph-r">
+        <button class="btn btn-ghost" style="background:#fff;padding:12px 20px;border-radius:100px;box-shadow:var(--shadow-sm)" onclick="regenerate()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6M21 12a9 9 0 1 1-3-6.7L21 8"/></svg>
+          Regenerate
+        </button>
+      </div>
+    </div>`;
+}
+
+function card(item, phase){
+  const price = money(item.price);
+  return `
+  <div class="pcard ${item.locked?'locked':''}" id="card-${item.id}">
+    <span class="lock-flag">Locked</span>
+    <div class="pc-thumb">${art(item.cat,item.tile,'c'+item.id)}</div>
+    <div class="pc-main">
+      <div class="pc-cat">${item.catLabel}</div>
+      <div class="pc-name">${item.name}</div>
+      <div class="pc-price">${price}</div>
+      <div class="pc-actions">
+        <button class="mini ${item.added?'added':'primary'}" onclick="addOne('${item.id}')">
+          ${item.added
+            ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> In cart'
+            : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> Add to cart'}
+        </button>
+        <button class="mini" onclick="openSwap('${item.id}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l4 4-4 4M20 7H8M8 21l-4-4 4-4M4 17h12"/></svg> Swap
+        </button>
+        <button class="icon-btn ${item.locked?'on':''}" title="${item.locked?'Locked — kept on regenerate':'Lock this piece'}" onclick="toggleLock('${item.id}')" aria-label="Lock">
+          ${item.locked
+            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+            : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>'}
+        </button>
+        <button class="icon-btn" title="Remove from plan" onclick="removeItem('${item.id}')" aria-label="Remove">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>
+        </button>
+      </div>
     </div>
   </div>`;
 }
-function renderIdeas(){
-  const open = ideas.filter(i=>i.state!=='passed' && i.state!=='shortlist' && (filter==='all'||i.src===filter));
-  const passed = ideas.filter(i=>i.state==='passed' && (filter==='all'||i.src===filter));
-  document.getElementById('ideagrid').innerHTML = open.map(cardHTML).join('') +
-    `<button class="addcard" onclick="openModal('addsrc')"><div class="plus">+</div><div>Add inspiration</div><div style="font-size:.72rem;font-weight:600;color:var(--ink-2)">Instagram · creators · screenshots · Wayfair</div></button>`;
-  document.getElementById('passedgrid').innerHTML = passed.length? passed.map(cardHTML).join('') : '<div class="empty" style="grid-column:1/-1">Nothing passed yet — pass an idea and it lands here for 30 days.</div>';
-  document.getElementById('ideacount').textContent = ideas.filter(i=>i.state==='open').length;
-  document.getElementById('slcount').textContent = ideas.filter(i=>i.state==='shortlist').length;
-  document.getElementById('dcount').textContent = ideas.filter(i=>i.thread.length).length;
-}
 
-/* ---------------- votes ---------------- */
-function vote(id, v){
-  const i = ideas.find(x=>x.id===id);
-  i.maya = i.maya===v? null : v;
-  if(i.maya==='love' && i.rohan==='love'){ i.state='shortlist'; toast('Shortlisted — you and Rohan both said yes ♥ Product matches ready.'); }
-  else if(i.maya==='pass'){ i.state='passed'; toast('Passed. Rohan will see this — it stays recoverable for 30 days.'); }
-  else { i.state='open'; if(i.maya==='love') toast('You shortlisted — waiting on Rohan\'s vote.'); }
-  renderIdeas(); renderShortlist(); renderDiscussList();
-}
-
-/* ---------------- shortlist ---------------- */
-function renderShortlist(){
-  const sl = ideas.filter(i=>i.state==='shortlist');
-  const el = document.getElementById('sllist');
-  if(!sl.length){ el.innerHTML='<div class="empty"><b>Nothing shortlisted yet.</b><br>When you and Rohan both ♥ an idea, it moves here with matched Wayfair products.</div>'; return; }
-  el.innerHTML = sl.map(i=>`
-    <div class="slrow">
-      <div class="slart">${art(i.seed)}</div>
-      <div>
-        <div class="slhead">
-          <div><div class="sltitle">${i.title}</div><div class="slmeta">Shortlisted by Maya &amp; Rohan · ${SRC[i.src].label}</div></div>
-          <button class="btn btn-ghost" style="padding:7px 14px;font-size:.75rem" onclick="goDiscuss(${i.id})">💬 Discuss</button>
-        </div>
-        <div class="matchlabel">Shop this look — ${i.products.length} matched item${i.products.length>1?'s':''}</div>
-        <div class="prodrow">${i.products.map((p,idx)=>`
-          <div class="prod"><div class="prodart">${prodArt(p.s)}</div>
-            <div class="prodbody"><div class="prodname">${p.n}</div><div class="prodprice">${p.p}</div>
-            <button class="prodadd" onclick="addCart(this)">Add to project cart</button></div>
-          </div>`).join('')}
-        </div>
-      </div>
-    </div>`).join('');
-}
-function addCart(btn){
-  if(btn.classList.contains('added')) return;
-  btn.classList.add('added'); btn.textContent='In project cart ✓';
-  cart++; document.getElementById('cartcount').textContent=cart;
-  toast('Added to project cart — stays linked to Our First Living Room and counts toward the budget.');
-}
-
-/* ---------------- discuss ---------------- */
-function renderDiscussList(){
-  const withThread = ideas.filter(i=>i.thread.length || i.id===activeThread);
-  document.getElementById('dlist').innerHTML = withThread.map(i=>`
-    <div class="ditem ${i.id===activeThread?'active':''}" onclick="setThread(${i.id})">
-      <div class="t">${i.title}</div>
-      <div class="s">${i.thread.length} comment${i.thread.length===1?'':'s'} · ${i.state==='shortlist'?'✓ shortlisted':i.state==='passed'?'passed':'undecided'}</div>
-    </div>`).join('');
-  renderThread();
-}
-function setThread(id){ activeThread=id; renderDiscussList(); }
-function renderThread(){
-  const i = ideas.find(x=>x.id===activeThread);
-  document.getElementById('threadhead').textContent = i.title;
-  const msgs = i.thread.map(m=>{
-    const me = m.who==='maya';
-    return `<div class="msg ${me?'me':''}">
-      <div class="av ${m.who}">${m.who==='maya'?'M':'R'}</div>
-      <div><div class="msgwho" ${me?'style="text-align:right"':''}>${m.who==='maya'?'You':'Rohan'}</div><div class="bubble">${m.t}</div></div>
+function renderSections(){
+  const heroItems = S.plan.hero.filter(i=>!i.removed);
+  const accItems  = S.plan.accent.filter(i=>!i.removed);
+  const now = heroItems.reduce((t,i)=>t+i.price,0);
+  const later = accItems.reduce((t,i)=>t+i.price,0);
+  $('#planMain').innerHTML = `
+    <div class="sec">
+      <div class="sec-head"><h2>Hero pieces</h2><span class="tag tag-now">Buy now · Phase 1</span></div>
+      <div class="sec-sub">The foundation of the room — buy these first. <b>${money(now)}</b> for ${heroItems.length} pieces.</div>
+      ${heroItems.map(i=>card(i,'hero')).join('') || emptyRow()}
+    </div>
+    <div class="sec">
+      <div class="sec-head"><h2>Accents</h2><span class="tag tag-later">Buy later · Phase 2</span></div>
+      <div class="sec-sub">Layer these in once the basics land — no rush. <b>${money(later)}</b> for ${accItems.length} pieces.</div>
+      ${accItems.map(i=>card(i,'accent')).join('') || emptyRow()}
     </div>`;
+}
+function emptyRow(){return `<div class="pcard" style="justify-content:center;color:var(--ink-3);font-weight:600;padding:26px">Nothing here yet — regenerate to bring pieces back.</div>`;}
+
+function renderBudget(){
+  const c=calc();
+  const pct=Math.min(100, c.total/S.budget*100);
+  const over=c.remaining<0;
+  const warn=!over && c.remaining < S.budget*0.08;
+  const barColor = over?'var(--red)': warn?'var(--amber)':'var(--green)';
+  const status = over
+    ? {cls:'over',txt:`${money(-c.remaining)} over budget`}
+    : warn ? {cls:'warn',txt:`Close to budget — ${money(c.remaining)} left`}
+           : {cls:'ok',txt:`Within budget — ${money(c.remaining)} to spare`};
+  const heroLive = S.plan.hero.filter(i=>!i.removed);
+  const allAdded = heroLive.length>0 && heroLive.every(i=>i.added);
+  $('#budgetCard').innerHTML = `
+    <div class="bc-head">
+      <div class="bt">Plan total</div>
+      <div class="bg-row"><div class="bg-total">${money(c.total)}</div><div class="bg-budget">of ${money(S.budget)}</div></div>
+      <div class="bc-bar"><i style="width:${pct}%;background:${barColor}"></i></div>
+      <div class="bc-status ${status.cls}">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${over?'<circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/>':'<path d="M20 6 9 17l-5-5"/>'}</svg>
+        ${status.txt}
+      </div>
+    </div>
+    <div class="bc-body">
+      <div class="bc-line"><span class="k"><span class="sw" style="background:var(--wf-purple)"></span>Buy now (Phase 1)</span><span class="v">${money(c.now)}</span></div>
+      <div class="bc-line"><span class="k"><span class="sw" style="background:var(--wf-purple-200)"></span>Buy later (Phase 2)</span><span class="v">${money(c.later)}</span></div>
+      <div class="bc-line remain ${over?'neg':''}"><span class="k">Remaining</span><span class="v">${money(c.remaining)}</span></div>
+    </div>
+    <div class="bc-foot">
+      <button class="bc-cta" onclick="addAllHero()">${allAdded?'✓ Buy-now pieces in cart':'Add all buy-now pieces'}</button>
+      <button class="bc-cta ghost" onclick="scheduleLater()">Schedule accents for later</button>
+      <div class="bc-meta">Phase 1 lands now · Phase 2 in ${(TIMELINES.find(t=>t.id===S.timeline)||{}).label.toLowerCase()}</div>
+    </div>`;
+}
+
+/* ---------- item actions ---------- */
+function findItem(id){ return S.plan.hero.find(i=>i.id===id) || S.plan.accent.find(i=>i.id===id); }
+
+function toggleLock(id){
+  const it=findItem(id); if(!it)return;
+  it.locked=!it.locked;
+  renderSections(); 
+  toast(it.locked?'Locked — we\'ll keep this on regenerate':'Unlocked');
+}
+function removeItem(id){
+  const el=document.getElementById('card-'+id);
+  const it=findItem(id); if(!it)return;
+  if(el){ el.classList.add('removing'); }
+  setTimeout(()=>{ it.removed=true; if(it.added){pullFromCart(it);} renderSections(); renderBudget(); },180);
+  toast('Removed from plan');
+}
+function addOne(id){
+  const it=findItem(id); if(!it||it.added)return;
+  it.added=true; S.cart.push({name:it.name,price:it.price,cat:it.cat,tile:it.tile,ref:it.id});
+  renderSections(); renderBudget(); updateCartCount(); toast('Added to cart');
+}
+function pullFromCart(it){
+  const idx=S.cart.findIndex(c=>c.ref===it.id);
+  if(idx>-1){S.cart.splice(idx,1); it.added=false; updateCartCount();}
+}
+function addAllHero(){
+  let added=0;
+  S.plan.hero.filter(i=>!i.removed && !i.added).forEach(it=>{
+    it.added=true; S.cart.push({name:it.name,price:it.price,cat:it.cat,tile:it.tile,ref:it.id}); added++;
+  });
+  renderSections(); renderBudget(); updateCartCount();
+  toast(added?`Added ${added} buy-now piece${added>1?'s':''} to cart`:'All buy-now pieces already in cart');
+}
+function scheduleLater(){ toast('Accents scheduled — we\'ll remind you in '+(TIMELINES.find(t=>t.id===S.timeline)||{}).label.toLowerCase()); }
+
+function regenerate(){
+  // rotate each UNLOCKED item to its next alternative; locked items stay
+  [...S.plan.hero, ...S.plan.accent].forEach(it=>{
+    if(it.locked || it.removed || !it.alts.length) return;
+    const cur={name:it.name,price:it.price};
+    const next=it.alts.shift();
+    it.alts.push(cur);
+    it.name=next.name; it.price=next.price;
+    it.added=false; // fresh piece, not in cart
+  });
+  // drop regenerated items that were in cart
+  S.cart = S.cart.filter(c=>{
+    const it=findItem(c.ref); return it && it.added;
+  });
+  updateCartCount();
+  renderPlanHero(); renderSections(); renderBudget();
+  toast('Plan refreshed — locked pieces kept');
+}
+
+/* ---------- swap sheet ---------- */
+function openSwap(id){
+  const it=findItem(id); if(!it)return;
+  S.swapTarget=id;
+  $('#swapSub').textContent = `${it.catLabel} · alternatives that keep the look.`;
+  const options = [{name:it.name,price:it.price,current:true}, ...it.alts.map(a=>({...a,current:false}))];
+  $('#swapBody').innerHTML = options.map((o,idx)=>{
+    const delta=o.price-it.price;
+    const deltaHtml = o.current ? '' :
+      `<div class="a-delta ${delta>0?'up':delta<0?'down':''}">${delta>0?'+':''}${delta===0?'same price':money(delta)}</div>`;
+    return `<button class="alt ${o.current?'current':''}" onclick="applySwap(${idx})">
+      <div class="a-thumb">${art(it.cat,it.tile,'sw'+idx)}</div>
+      <div class="a-main">
+        ${o.current?'<div class="a-cur">Current</div>':''}
+        <div class="a-name">${o.name}</div>
+        <div class="a-price">${money(o.price)}</div>
+        ${deltaHtml}
+      </div>
+    </button>`;
   }).join('');
-  const chips = i.state==='open'? `<div class="decisionchips">
-      <span style="font-size:.72rem;color:var(--ink-3);align-self:center;font-weight:700">Decide right here:</span>
-      <button class="dchip yes" onclick="vote(${i.id},'love')">♥ Shortlist it</button>
-      <button class="dchip no" onclick="vote(${i.id},'pass')">✕ Pass</button>
-    </div>` : `<div class="decisionchips"><span class="dchip done">${i.state==='shortlist'?'✓ Shortlisted by both':'Passed'}</span></div>`;
-  document.getElementById('threadmsgs').innerHTML = msgs + chips;
+  openSheet('swapSheet');
 }
-function sendMsg(){
-  const inp = document.getElementById('composeinput');
-  if(!inp.value.trim()) return;
-  const i = ideas.find(x=>x.id===activeThread);
-  i.thread.push({who:'maya', t:inp.value.trim()});
-  inp.value='';
-  renderDiscussList(); renderIdeas();
-  setTimeout(()=>{ i.thread.push({who:'rohan', t:'Seen 👍 let\'s lock it this weekend.'}); if(activeThread===i.id) renderThread(); }, 1400);
-}
-function goDiscuss(id){ activeThread=id; showPane('discuss'); renderDiscussList(); }
-
-/* ---------------- tabs / filters / roadmap ---------------- */
-function showPane(name){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.pane===name));
-  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('active', p.id==='pane-'+name));
-}
-function setFilter(f){
-  filter=f;
-  document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active', b.dataset.f===f));
-  renderIdeas();
-}
-function toggleRoadmap(){
-  document.body.classList.toggle('showroadmap');
-  document.getElementById('rswitch').classList.toggle('on');
+function applySwap(idx){
+  const it=findItem(S.swapTarget); if(!it)return;
+  if(idx===0){ closeSheets(); return; } // chose current
+  const options=[{name:it.name,price:it.price}, ...it.alts];
+  const chosen=options[idx];
+  // swap: current goes back into alts pool, chosen becomes active
+  const newAlts = options.filter((_,i)=>i!==idx);
+  it.name=chosen.name; it.price=chosen.price; it.alts=newAlts.slice(1).concat([newAlts[0]]);
+  if(it.added){ pullFromCart(it); } // swapped piece leaves cart
+  closeSheets();
+  renderSections(); renderBudget();
+  toast('Swapped in your pick');
 }
 
-/* ---------------- modals ---------------- */
-function openModal(name){
-  document.querySelectorAll('.modal').forEach(m=>m.style.display='none');
-  document.getElementById('m-'+name).style.display='block';
-  document.getElementById('ov').classList.add('open');
-  if(name==='instagram'){ igNext(1); buildPicks(); }
+/* ---------- cart sheet ---------- */
+function openCart(){
+  renderCart(); openSheet('cartSheet');
 }
-function closeModal(){ document.getElementById('ov').classList.remove('open'); }
-document.getElementById('ov').addEventListener('click', e=>{ if(e.target.id==='ov') closeModal(); });
-
-function igNext(step){ [1,2,3].forEach(s=>document.getElementById('igstep'+s).style.display = s===step?'block':'none'); }
-function buildPicks(){
-  const picks=[
-    {l:'Saved · "LR ideas" (14)',seed:3,sel:true},{l:'Saved · "Someday home" (32)',seed:1,sel:false},
-    {l:'@urbannest.diaries',seed:0,sel:true},{l:'@theloftedit',seed:4,sel:false},{l:'@smallspace.stories',seed:2,sel:false},{l:'@warm.minimal',seed:5,sel:false}
-  ];
-  document.getElementById('igpicks').innerHTML = picks.map((p,i)=>`
-    <button class="pick ${p.sel?'sel':''}" onclick="this.classList.toggle('sel')"><div class="chk">✓</div>${art(p.seed)}<span class="pl">${p.l}</span></button>`).join('');
-}
-function finishIg(){
-  closeModal();
-  ideas.unshift({id:99, title:'Linen curtains + floor cushions', note:'From Instagram · just imported from "LR ideas"', src:'instagram', maya:null, rohan:null, state:'open', seed:1, products:[{n:'Eider & Ivory Linen Curtains (pair)',p:'$65',s:3}], thread:[]});
-  setFilter('instagram'); showPane('ideas'); renderIdeas();
-  toast('2 ideas imported from Instagram — Rohan can see them too.');
-}
-function importCreator(){
-  closeModal();
-  ideas.unshift({id:98, title:'Creator edit: "3.6m wall, warm modern"', note:'Creator edit · 9 items pre-matched · fits your living room', src:'creator', maya:null, rohan:null, state:'open', seed:0, products:[{n:'Arc Floor Lamp, Brass',p:'$139',s:3},{n:'Bouclé Lounge Chair',p:'$289',s:1}], thread:[]});
-  setFilter('creator'); showPane('ideas'); renderIdeas();
-  toast('Creator edit imported — every item is already shoppable.');
-}
-function uploadFlow(){
-  closeModal();
-  ideas.unshift({id:97, title:'New screenshot upload', note:'Screenshot · matching items in the image… 3 matches found', src:'upload', maya:null, rohan:null, state:'open', seed:4, products:[{n:'Matched: Rattan Accent Chair',p:'$189',s:2}], thread:[]});
-  setFilter('upload'); showPane('ideas'); renderIdeas();
-  toast('Screenshot added — we matched 3 Wayfair items inside it (Q2).');
-}
-function pickRole(el){ document.querySelectorAll('.roleopt').forEach(r=>r.classList.remove('sel')); el.classList.add('sel'); }
-function sendInvite(){
-  closeModal();
-  const row=document.getElementById('memberrow');
-  if(!document.getElementById('av-priya')){
-    const d=document.createElement('div'); d.className='av priya'; d.id='av-priya'; d.title='Priya (Designer) — invited'; d.textContent='P'; d.style.opacity='.55';
-    row.insertBefore(d, row.lastElementChild);
+function renderCart(){
+  const body=$('#cartBody'), foot=$('#cartFoot');
+  if(!S.cart.length){
+    body.innerHTML=`<div class="cart-empty">Your cart is empty.<br>Add buy-now pieces from your plan.</div>`;
+    foot.hidden=true; return;
   }
-  toast('Invite sent to Priya (Design professional) — she\'ll see the board, not your budget.');
+  body.innerHTML = S.cart.map((c,i)=>`
+    <div class="cart-item">
+      <div class="ci-thumb">${art(c.cat,c.tile,'cart'+i)}</div>
+      <div class="ci-name">${c.name}</div>
+      <div class="ci-price">${money(c.price)}</div>
+    </div>`).join('');
+  const total=S.cart.reduce((t,c)=>t+c.price,0);
+  $('#cartTotal').textContent=money(total);
+  foot.hidden=false;
 }
+function updateCartCount(){ $('#cartCount').textContent=S.cart.length; }
 
-/* ---------------- toast ---------------- */
+/* ---------- sheets / scrim ---------- */
+function openSheet(id){ $('#'+id).classList.add('show'); $('#scrim').classList.add('show'); }
+function closeSheets(){ document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show')); $('#scrim').classList.remove('show'); S.swapTarget=null; }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSheets(); });
+
+/* ---------- toast ---------- */
 let toastTimer;
 function toast(msg){
-  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'), 3200);
+  const w=$('#toastWrap');
+  w.innerHTML=`<div class="toast"><span class="tchk"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>${msg}</div>`;
+  const t=w.firstElementChild;
+  requestAnimationFrame(()=>t.classList.add('show'));
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>{w.innerHTML='';},300); }, 2400);
 }
 
-/* init */
-renderIdeas(); renderShortlist(); renderDiscussList();
+/* ---------- init ---------- */
+buildCollage();
 </script>
 </body>
 </html>

@@ -1,30 +1,33 @@
-# Wayfair Product Case — Workstream 2 Prototype
+# My Room, Planned — Wayfair Workstream 2 prototype
 
-**Live Project Workspace** — interactive prototype for the Wayfair written case:
-moving customers from single-item purchases to furnishing entire rooms.
+A **"done-for-you" budget-fit room planner**. The customer shares a brief (room,
+budget, timeline, style, and what they already own); the tool returns a complete,
+shoppable **Budget-Fit Room Plan** — hero pieces to buy now, accents to defer to
+a later phase — that lands inside their budget.
 
 **Live demo:** https://manojkumaraiproductlead.github.io/Wayfair-product/
 
-## What it covers
+## Flow
 
-Maps to the five Workstream 2 features in the case memo:
+1. **Project intake** — a 3-step wizard: room selection, budget slider + timeline,
+   style + inspiration + constraints ("I already have a gray sofa").
+2. **Generate** — a skeleton-loader state simulates the budget-fit engine
+   (a manual concierge in Q1; the customer graph in Q2).
+3. **Budget-fit plan** — mood-board header, Phase 1 (Buy now) and Phase 2
+   (Buy later) sections, and a live budget card with a spend progress bar.
+4. **Review & tweak** — per-item **Swap** (curated alternatives), **Lock**
+   (kept on regenerate), and **Remove**; **Regenerate** re-rolls only the
+   unlocked pieces; **Add to cart** on any item or all buy-now pieces at once.
 
-1. Household member and professional collaboration (invite flow with roles)
-2. Consented social import — Instagram connect (3-step consent) and creator edit pull
-3. Media / screenshot upload with product matching
-4. Budget, rooms, and spatial planning in one workspace
-5. Designer sharing with scoped access
+## Q1 fake-door metrics instrumented in the flow
 
-Ideas board supports discuss / shortlist / reject with per-member votes; ideas
-shortlisted by both members surface "Shop this look" product matches tied to a
-project cart.
+Intake completion (>60%) · Plan acceptance — kept vs. swapped hero pieces (>50%) ·
+Project-to-cart conversion (>20%).
 
-Toggle **Show roadmap labels** in the UI to overlay Q1 / Q2 / Later phasing on
-each feature.
+## Build
 
-## Metrics instrumented in the flow
+Single self-contained `index.html` — HTML5 / CSS3 / vanilla JS, no dependencies,
+inline SVG product art (renders offline). Adheres to Wayfair brand tokens
+(purple `#7F187F`, Figtree). Static JSON simulates the plan data.
 
-Projects with ≥2 collaborators · inspiration-to-cart time · project-to-cart
-conversion · Project AOV.
-
-*Prototype is a single self-contained HTML file. Built as a case artifact; not affiliated with Wayfair.*
+*Product case artifact — not affiliated with Wayfair.*
